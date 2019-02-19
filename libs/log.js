@@ -28,6 +28,10 @@ exports.init = function(scope) {
 			console_log(tolog(tostr(message).white));
 		},
 
+		info: function(message){
+			console_log(tolog(tostr(message)['green']));
+		},
+
 		notice: function (message) {
 		    console_log(tolog(tostr(message).blue));
 		},
