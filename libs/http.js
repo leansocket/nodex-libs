@@ -16,9 +16,12 @@ exports.combine_url_and_params = function(url, data){
     }
 
     let params = query.stringify(data);
-    let index = url.indexOf("?", 0);
+    if(!params || params.length <= 0){
+        return url;
+    }
 
     let ret = url;
+    let index = url.indexOf("?", 0);
     if (index < 0 || index >= url.length) {
         ret = url + "?" + params;
     }
@@ -218,6 +221,7 @@ exports.post = async function(args, data){
 };
 
 exports.webapp = function(args){
+    let fs = require('fs');
     let koa = require('koa');
     let koa_body = require('./body');
     let koa_cors = require('koa2-cors');
@@ -225,17 +229,10 @@ exports.webapp = function(args){
 
     let app = new koa();
 
-    app.use(async (ctx, next)=>{
-        try{
-            return await next();
-        }
-        catch(e){
-            let message = util.make_xdata(arg1, null);
-            if(message.result !== 0 && message.result !== 'ok'){
-                console.log(`http: error ${message.result}: ${message.error}`);
-            }
-            let jsonstr = JSON.stringify(message);
-            ctx.response.body = jsonstr;
+    app.on('error', (err, ctx) => {
+        console.error(`http: error ${err.message}`);
+        if(ctx){
+            // print nothing.
         }
     });
 
@@ -251,10 +248,10 @@ exports.webapp = function(args){
     // todo: session
 
     if(args && args.log){
-        app.use((ctx, next) => {
+        app.use(async (ctx, next) => {
             let req = ctx.request;
             console.log(`http: ${req.ip} ${req.protocol.toUpperCase()} ${req.method} ${req.url}`);
-            next();
+            return next();
         });
     }
 
@@ -268,7 +265,7 @@ exports.webapp = function(args){
                 app.use((ctx, next) => {
                     let res = ctx.response;
                     res.set("Strict-Transport-Security", "max-age=31536000");
-                    next();
+                    return next();
                 });
             }
 
@@ -287,8 +284,17 @@ exports.webapp = function(args){
 
     app.route = function(func){
         let router = new koa_router();
+        router.use(async(ctx, next)=>{
+            try{
+                await next();
+            }
+            catch(err){
+                ctx.body = util.make_xdata(err, null);
+                ctx.app.emit('error', err);
+            }
+        });
         func(router);
-        app.use(router.routes());
+        app.use(router.routes()).use(router.allowedMethods());
     };
 
     app.start = function(){
@@ -312,12 +318,8 @@ exports.webapp = function(args){
 
 exports.send = function (ctx, arg1, arg2) {
     let message = util.make_xdata(arg1, arg2);
-    if(message.result !== 0 && message.result !== 'ok'){
-        console.log(`http: error ${message.result}: ${message.error}`);
-    }
-    let jsonstr = JSON.stringify(message);
-
-    ctx.response.body = jsonstr;
+    //console.log(`http: send ${JSON.stringify(message)}`);
+    ctx.response.body = message;
 };
 
 exports.error = function(ctx, err, ret){
