@@ -39,8 +39,6 @@ exports.query = function (sql, logsql = true) {
                 return resolve(results, fields);
             });
         });
-    }).catch((err)=>{
-        throw err;
     });
 };
 
@@ -59,8 +57,6 @@ exports.transaction = function() {
                     }
                     return resolve(results, fields);
                 });
-            }).catch((err)=>{
-                throw err;
             });
         };
 
@@ -99,8 +95,5 @@ exports.transaction = function() {
                 return resolve(new Tx(conn));
             });
         });
-    }).catch((err)=>{
-        throw err;
     });
 };
-

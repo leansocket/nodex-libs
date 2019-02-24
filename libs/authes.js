@@ -116,3 +116,58 @@ exports.Code = function(length, timeout){
 
     setInterval(this.clear, interval);
 };
+
+exports.Key = function(length, timeout){
+    if(typeof(length) !== 'number' || length <= 0){
+        length = 6;
+    }
+    if(typeof(timeout) !== 'number'){
+        timeout = 0;
+    }
+
+    let sessions = {};
+    let interval = 10000;
+
+    this.make = function(data){
+        let k = crypto.rsod(length);
+        while(sessions[k] !== undefined){
+            k = crypto.rsod(length);
+        }
+
+        let s = {
+            key: k,
+            data: data,
+            time: Date.now(),
+            life: timeout * 1000
+        };
+        sessions[k] = s;
+        return s.key;
+    };
+
+    this.check = function(key){
+        let s = sessions[key];
+        if(s){
+            s.time = Date.now();
+        }
+        return s;
+    };
+
+    this.clear = function(){
+        let now = Date.now();
+
+        let list = [];
+        for(let key in sessions){
+            let s = sessions[key];
+            if(now > s.time + timeout * 1000){
+                list.push(key);
+            }
+        }
+
+        for(let i = 0; i < list.length; i++){
+            let key = list[i];
+            delete sessions[key];
+        }
+    };
+
+    setInterval(this.clear, interval);
+};
