@@ -50,7 +50,6 @@ exports.transaction = function() {
                     console.log(`db: ${sql}`);
                 }
                 conn.query(sql, (err, results, fields) => {
-                    conn.release();
                     if (err) {
                         console.log(`db: ${err.message}`);
                         return reject(err);
