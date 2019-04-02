@@ -19,6 +19,35 @@ npm install nodex-libs --save
 
 ## Usage
 
+import
+
+```js
+const libs = require('nodex-libs');
+```
+
+logger apis
+
+```js
+libs.log.init('scope-name');
+console.log(`log message`);
+console.info(`info message`);
+console.warn(`warning message`);
+console.error(`error message`);
+```
+
+http server
+
+```js
+
+```
+
+mysql db
+
+```js
+```
+
+
+
 ## License
 
-MIT
+MIT license
