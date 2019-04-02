@@ -100,6 +100,30 @@ db.init({
     let ret = await db.query(sql);
     console.log(ret.affectedRows);
 }
+
+// transaction
+do
+{
+    let tx = db.transaction();
+    
+    let ret = await tx.query('update test set status = 0 where id = 10';
+    if(ret.affectedRows !== 1){
+        tx.rollback();
+        tx.release();
+        break;
+    }
+    
+    ret = await tx.query('update test data = 1 where id = 10');
+    if(ret.affectedRows !== 1){
+         tx.rollback();
+         tx.release();
+         break;
+    }
+    
+    tx.commit();
+    tx.release();
+}
+while(0);
 ```
 
 
