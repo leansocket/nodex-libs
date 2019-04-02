@@ -79,6 +79,27 @@ app.start();
 mysql db
 
 ```js
+const libs = require('nodex-libs');
+const db = libs.db;
+
+db.init({
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    pswd: 'root'
+});
+
+{
+    let sql = 'select * from test';
+    let list = await db.query(sql);
+    console.log(JSON.stringify(list));
+}
+
+{
+    let sql = 'delete from test where id = 0';
+    let ret = await db.query(sql);
+    console.log(ret.affectedRows);
+}
 ```
 
 
