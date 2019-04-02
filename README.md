@@ -28,7 +28,10 @@ const libs = require('nodex-libs');
 logger apis
 
 ```js
+const libs = require('nodex-libs');
+
 libs.log.init('scope-name');
+
 console.log(`log message`);
 console.info(`info message`);
 console.warn(`warning message`);
@@ -38,6 +41,38 @@ console.error(`error message`);
 http server
 
 ```js
+const libs = require('nodex-libs');
+const http = libs.http;
+
+const args = {
+    body: {},
+    host: '127.0.0.1',
+    port: 80,
+    corn: true,
+    log: true
+};
+
+let hello = (ctx) => {
+    http.send(ctx, 'hello world.');
+};
+
+let about = (ctx) => {
+    let ret = {
+        name: 'nodex-libs test',
+        info: 0
+    };
+    
+    http.send(ctx, info);
+};
+
+let app = libs.http.webapp(args);
+
+app.route((r)=>{
+    r.get('/hello', hello);
+    r.get('/about', about);
+});
+
+app.start();
 
 ```
 
