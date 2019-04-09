@@ -5,37 +5,6 @@ exports.abs_path = function(p){
     return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
 };
 
-exports.parse_json = function(data, callback){
-    let str = data;
-    if(typeof(data) === 'object' && Buffer.isBuffer(data)){
-        str = data.toString("utf8");
-    }
-
-    let json = null;
-    let error = null;
-    try {
-        json = JSON.parse(str);
-    }
-    catch (e) {
-        error = e;
-    }
-    if(typeof(callback) === 'function') {
-        callback(error, json);
-    }
-    return json;
-};
-
-exports.read_json_file = function(file, callback){
-    fs.readFile(file, (err, content)=>{
-        if(err){
-            return callback(err, null);
-        }
-        exports.parse_json(content, (err, ret)=>{
-            return callback(err, ret);
-        });
-    });
-};
-
 exports.check_error = function(err, ret){
     if(err){
         return true;
