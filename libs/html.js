@@ -15,8 +15,6 @@ exports.decompress = async function(res){
         else{
             return resolve(res);
         }
-    }).catch((err)=>{
-        throw err;
     });
 };
 
@@ -35,8 +33,6 @@ exports.decode = async function(res){
 
         let str = iconv.decode(content, charset);
         return resolve({headers:headers, content:str});
-    }).catch((err)=>{
-        throw err;
     });
 };
 
