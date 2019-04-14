@@ -42,8 +42,8 @@ exports.query = function (sql, logsql = true) {
     });
 };
 
-exports.transaction = function() {
-    let Tx = function(conn){
+exports.transaction = function(autoRelease = true) {
+    let Tx = function(conn, autoRelease){
         this.query = function(sql, logsql = true){
             return new Promise((resolve, reject)=>{
                 if(logsql){
@@ -64,6 +64,9 @@ exports.transaction = function() {
                 if(err){
                     console.log(`db: ${err.message}`);
                 }
+                if(autoRelease){
+                    conn.release();
+                }
             });
         };
 
@@ -71,6 +74,9 @@ exports.transaction = function() {
             conn.commit((err)=>{
                 if(err){
                     console.log(`db: ${err.message}`);
+                }
+                if(autoRelease){
+                    conn.release();
                 }
             });
         };
@@ -91,7 +97,7 @@ exports.transaction = function() {
                     console.log(`db: ${error.message}`);
                     return reject(error);
                 }
-                return resolve(new Tx(conn));
+                return resolve(new Tx(conn, autoRelease));
             });
         });
     });
