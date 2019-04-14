@@ -126,6 +126,17 @@ do
 while(0);
 ```
 
+flake uid
+
+```js
+const libs = require('nodex-libs');
+const flake = libs.flake;
+
+let f = flake.create();
+for(let i = 0; i < 10; i++){
+    console.log(f.get());
+}
+```
 
 
 ## License
