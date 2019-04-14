@@ -16,9 +16,9 @@ let load = function(name){
 };
 
 let modules = [
-    'log', 'fmt', 'iters', 'schedule', 'seq',
+    'log', 'fmt', 'iters', 'schedule', 'flake',
     'http', 'smtp', 'db',
-    'vfs', 'crypto', 'authes', 'html', 'hgate',
+    'vfs', 'crypto', 'authes', 'html',
     'util',
 ];
 
