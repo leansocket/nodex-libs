@@ -1,4 +1,4 @@
-let flake = require('../libs/flake');
+let flake = require('../libs/flakes');
 
 let f = flake.create();
 for(let i = 0; i < 10; i++){
