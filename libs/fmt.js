@@ -38,14 +38,14 @@ exports.must_have_one = function(obj, fields){
             return;
         }
     }
-    throw Error.make("ERR_FieldRequired", `Nothing is defined in the object.`);
+    throw Error.make("ERR_FIELED_REQUIRED", `Nothing is defined in the object.`);
 };
 
 exports.must_have_all = function(obj, fields){
     for(let i = 0; i < fields.length; i++){
         let f = fields[i];
         if(!exports.has(f)){
-            throw Error.make("ERR_FieldRequired", `Required field '${f}' is not defined in the object.`);
+            throw Error.make("ERR_FIELED_REQUIRED", `Required field '${f}' is not defined in the object.`);
         }
     }
 };
@@ -69,10 +69,10 @@ exports.regs = {
 
 exports.check = function(field, format, minlen, maxlen){
     if(field === null || field === undefined){
-        throw Error.make('ERR_FieldNullOrUndefined', `field is null or undefined.`)
+        throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`)
     }
     if(typeof(field) === 'object' || typeof(field) === 'function'){
-        throw Error.make('ERR_TypeInvalid', `data-type of field is invalid.`);
+        throw Error.make('ERR_TYPE_INVALID', `data-type of field is invalid.`);
     }
 
     let str = field.toString();
@@ -84,22 +84,22 @@ exports.check = function(field, format, minlen, maxlen){
         else {
             let reg = exports.regs[format];
             if(reg === undefined) {
-                throw Error.make('ERR_FormatUndefined', `the format '${format}' is undefined.`);
+                throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
             }
             if(!exports.regs[format].test(str)){
-                throw Error.make('ERR_FormatInvalid', `data format of field is invalid, '${format}' expected.`);
+                throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
             }
         }
     }
     else if(format instanceof RegExp && !format.test(str)){
-        throw Error.make('ERR_FormatInvalid', `data format of field is invalid, '${format}' expected.`);
+        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
     }
 
     if(typeof(minlen) === 'number' && str.length < minlen){
-        throw Error.make('ERR_FormatInvalid', `data format of field is invalid, data is too short.`);
+        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);
     }
 
     if(typeof(maxlen) === 'number' && str.length > maxlen){
-        throw Error.make('ERR_FormatInvalid', `data format of field is invalid, data is too long.`);
+        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too long.`);
     }
 };
