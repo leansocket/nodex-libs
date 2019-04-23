@@ -25,8 +25,8 @@ exports.check_error = function(err, ret){
 exports.make_xdata = function(arg0, arg1){
     if(arg0 === undefined && arg1 === undefined){
         let xdata = {};
-        xdata.result = 'ERR_Unknown';
-        xdata.error = 'Unknown error.';
+        xdata.result = 'ERR_INVALID_XDATA';
+        xdata.error = 'x-data is invalid.';
         return xdata;
     }
     if(arg0 instanceof Error){
@@ -54,13 +54,20 @@ exports.make_xdata = function(arg0, arg1){
     }
     let t0 = typeof(arg0);
     let t1 = typeof(arg1);
-    if(t0 === 'object'){
+    if(t0 === 'number' || t0 === 'string' || t0 === 'boolean'){
+        let xdata = {};
+        xdata.result = 'ok';
+        xdata.error = '';
+        if (arg0 !== 'ok') {
+            xdata.data = arg0;
+        }
+        return xdata;
+    }
+    else if(t0 === 'object'){
         if(arg0 !== null){
-            let xdata
+            let xdata = arg0;
             if (arg0 instanceof Array) {
                 xdata = { data: arg0 };
-            } else {
-                xdata = arg0;
             }
             if(xdata.result === undefined){
                 xdata.result = 'ok';
@@ -74,11 +81,9 @@ exports.make_xdata = function(arg0, arg1){
             return xdata;
         }
         else if(t1 === 'object' && arg1 !== null){
-            let xdata
+            let xdata = arg1;
             if (arg1 instanceof Array) {
                 xdata = { data: arg1 };
-            } else {
-                xdata = arg1;
             }
             if(xdata.result === undefined){
                 xdata.result = 'ok';
@@ -86,21 +91,12 @@ exports.make_xdata = function(arg0, arg1){
             return xdata;
         }
     }
-    if(t0 === 'number' || t0 === 'string' || t0 === 'boolean'){
-        let xdata = {};
-        xdata.result = 'ok';
-        xdata.error = '';
-        if (arg0 !== 'ok') {
-            xdata.data = arg0;
-        }
-        return xdata;
-    }
 
     // fallback
     {
         let xdata = {};
-        xdata.result = 'ERR_InvalidData';
-        xdata.error = 'data is invalid.';
+        xdata.result = 'ERR_INVALID_XDATA';
+        xdata.error = 'x-data is invalid.';
         return xdata;
     }
 };
