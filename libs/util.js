@@ -56,7 +56,12 @@ exports.make_xdata = function(arg0, arg1){
     let t1 = typeof(arg1);
     if(t0 === 'object'){
         if(arg0 !== null){
-            let xdata = arg0;
+            let xdata
+            if (arg0 instanceof Array) {
+                xdata = { data: arg0 };
+            } else {
+                xdata = arg0;
+            }
             if(xdata.result === undefined){
                 xdata.result = 'ok';
             }
@@ -69,7 +74,12 @@ exports.make_xdata = function(arg0, arg1){
             return xdata;
         }
         else if(t1 === 'object' && arg1 !== null){
-            let xdata = arg1;
+            let xdata
+            if (arg1 instanceof Array) {
+                xdata = { data: arg1 };
+            } else {
+                xdata = arg1;
+            }
             if(xdata.result === undefined){
                 xdata.result = 'ok';
             }
