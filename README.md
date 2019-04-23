@@ -126,13 +126,13 @@ do
 while(0);
 ```
 
-flake uid
+flakes unique ID:
 
 ```js
 const libs = require('nodex-libs');
-const flake = libs.flake;
+const flakes = libs.flakes;
 
-let f = flake.create();
+let f = flakes.create();
 for(let i = 0; i < 10; i++){
     console.log(f.get());
 }
