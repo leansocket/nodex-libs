@@ -54,6 +54,7 @@ exports.regs = {
     alpha: /^[a-zA-Z]+$/,
     number: /^\d+$/,
     integer: /^[-+]?\d+$/,
+    string: /^[\w\W\s\S\d\D\b\B]*$/,
     float: /^[-+]?\d+(\.\d+)?$/,
     hex: /^(0x|0X)?[a-fA-F\d]+$/,
     word: /^\w+$/,
