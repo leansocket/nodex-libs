@@ -4,13 +4,14 @@ let https = require('https');
 let liburl = require('url');
 let query = require('querystring');
 
+let vfs = require('./vfs');
 let util = require('./util');
 
-exports.is_https = function(url){
+exports.isHttps = function(url) {
     return url.indexOf('https://') === 0;
 };
 
-exports.combine_url_and_params = function(url, data){
+exports.combineUrlAndParams = function(url, data) {
     if(typeof(data) !== 'object' || data === null) {
         return url;
     }
@@ -34,7 +35,7 @@ exports.combine_url_and_params = function(url, data){
     return ret;
 };
 
-let on_res = async function(res, callback) {
+let onRes = async function(res, callback) {
     let body = [];
 
     res.on("data", (data) => {
@@ -85,22 +86,22 @@ let on_res = async function(res, callback) {
  }
  args : string
  * */
-let do_get = function(args, data, callback){
+let doGet = function(args, data, callback) {
     let options = null;
     let safe = false;
     if(typeof(args) === 'object' && args !== null){
         options = {
             hostname: args.host,
             port: args.port || 80,
-            path: exports.combine_url_and_params(args.path, data),
+            path: exports.combineUrlAndParams(args.path, data),
             method: 'GET',
             headers: args.headers || undefined
         };
         safe = args.safe === true;
     }
     else if(typeof(args) === 'string' && args.length > 0) {
-        options = exports.combine_url_and_params(args, data);
-        safe = exports.is_https(args);
+        options = exports.combineUrlAndParams(args, data);
+        safe = exports.isHttps(args);
     }
     else {
         let err = new Error('invalid args.');
@@ -116,7 +117,7 @@ let do_get = function(args, data, callback){
     let proto = safe ? https : http;
 
     let req = proto.request(options, (res)=>{
-        return on_res(res, callback);
+        return onRes(res, callback);
     });
 
     req.on('error', function (err) {
@@ -137,7 +138,7 @@ let do_get = function(args, data, callback){
  }
  args : string
  * */
-let do_post = function (args, data, callback) {
+let doPost = function(args, data, callback) {
     let options = null;
     let safe = false;
     let content_str = JSON.stringify(data);
@@ -161,7 +162,7 @@ let do_post = function (args, data, callback) {
             path: urlinfo.path,
             method: 'POST'
         };
-        safe = exports.is_https(args);
+        safe = exports.isHttps(args);
     }
     else {
         let err = new Error('invalid args.');
@@ -184,7 +185,7 @@ let do_post = function (args, data, callback) {
     let proto = safe ? https : http;
 
     let req = proto.request(options, (res)=>{
-        on_res(res, callback);
+        onRes(res, callback);
     });
 
     req.on('error', function (e) {
@@ -197,9 +198,9 @@ let do_post = function (args, data, callback) {
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.get = function (args, data) {
+exports.get = function(args, data) {
     return new Promise((resolve, reject)=>{
-        do_get(args, data, (error, content)=>{
+        doGet(args, data, (error, content)=>{
             if(error){
                 return reject(error);
             }
@@ -209,9 +210,9 @@ exports.get = function (args, data) {
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.post = async function(args, data){
-    return await new Promise((resolve, reject)=>{
-        do_post(args, data, (error, content)=>{
+exports.post = function(args, data) {
+    return new Promise((resolve, reject)=>{
+        doPost(args, data, (error, content)=>{
             if(error){
                 return reject(error);
             }
@@ -220,7 +221,9 @@ exports.post = async function(args, data){
     });
 };
 
-exports.webapp = function(args){
+exports.webapp = function(args) {
+    args = args || {};
+
     let fs = require('fs');
     let koa = require('koa');
     let koa_body = require('./body');
@@ -232,22 +235,11 @@ exports.webapp = function(args){
     app.on('error', (err, ctx) => {
         console.error(`http: error ${err.message}`);
         if(ctx){
-            // print nothing.
+            // nothing needed to do
         }
     });
 
-    let bodyParserEnabled = true;
-    if(args && args.body === false){
-        bodyParserEnabled = false;
-    }
-    if(bodyParserEnabled){
-        app.use(koa_body(args.body));
-    }
-
-    // todo: cookie
-    // todo: session
-
-    if(args && args.log){
+    if(args.log){
         app.use(async (ctx, next) => {
             let req = ctx.request;
             console.log(`http: ${req.ip} ${req.protocol.toUpperCase()} ${req.method} ${req.url}`);
@@ -255,11 +247,25 @@ exports.webapp = function(args){
         });
     }
 
-    if(args && (args.cors || args.cda)){
+    if(args.cors){
+        app.use(koa_cors());
+    }
+    else if(args.cda){
+        console.warn(`'cda' is deprecated, please use cors instade.`);
         app.use(koa_cors());
     }
 
-    if (args && args.https_cert && args.https_key){
+    if(args.body){
+        let bodyType = typeof args.body;       
+        if(bodyType === 'object'){
+            app.use(koa_body(args.body));
+        }
+        else if(bodyType === 'function'){
+            app.use(args.body);
+        }
+    }
+
+    if (args.https_cert && args.https_key){
         app.listen_safely = function(){
             if(args.https_hsts){
                 app.use((ctx, next) => {
@@ -269,8 +275,8 @@ exports.webapp = function(args){
                 });
             }
 
-            let cert = fs.readFileSync(util.abs_path(args.https_cert));
-            let key = fs.readFileSync(util.abs_path(args.https_key));
+            let cert = fs.readFileSync(vfs.absolutePath(args.https_cert));
+            let key = fs.readFileSync(vfs.absolutePath(args.https_key));
             let options = {cert: cert, key: key};
 
             let server = https.createServer(options, app.callback());
@@ -289,7 +295,7 @@ exports.webapp = function(args){
                 await next();
             }
             catch(err){
-                ctx.body = util.make_xdata(err, null);
+                ctx.body = util.makeXdata(err, null);
                 ctx.app.emit('error', err);
             }
         });
@@ -316,14 +322,14 @@ exports.webapp = function(args){
     return app;
 };
 
-exports.send = function (ctx, arg1, arg2) {
-    let message = util.make_xdata(arg1, arg2);
+exports.send = function(ctx, arg1, arg2) {
+    let message = util.makeXdata(arg1, arg2);
     //console.log(`http: send ${JSON.stringify(message)}`);
     ctx.response.body = message;
 };
 
-exports.error = function(ctx, err, ret){
-    if(util.check_error(err, ret)){
+exports.error = function(ctx, err, ret) {
+    if(util.checkError(err, ret)){
         exports.send(ctx, err, ret);
         return true;
     }
