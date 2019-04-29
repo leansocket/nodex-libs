@@ -1,11 +1,5 @@
-let path = require('path');
-let fs = require('fs');
 
-exports.abs_path = function(p){
-    return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
-};
-
-exports.check_error = function(err, ret){
+exports.checkError = function(err, ret) {
     if(err){
         return true;
     }
@@ -22,7 +16,7 @@ exports.check_error = function(err, ret){
 * make_xdata(ret);
 * make_xdata(null, ret);
 * */
-exports.make_xdata = function(arg0, arg1){
+exports.makeXdata = function(arg0, arg1) {
     if(arg0 === undefined && arg1 === undefined){
         let xdata = {};
         xdata.result = 'ERR_INVALID_XDATA';

@@ -1,5 +1,5 @@
 
-let next_step = function(iter, onIterate, onComplete){
+let next_step = function(iter, onIterate, onComplete) {
     if(iter.end()){
         if(typeof(onComplete) === 'function'){
             onComplete();
@@ -20,7 +20,7 @@ let next_step = function(iter, onIterate, onComplete){
  * @param onIterate: function(node:object, next:function())
  * @param onComplete: function()
  * */
-exports.iterate = function(iter, onIterate, onComplete){
+exports.iterate = function(iter, onIterate, onComplete) {
     let on_it = function(n){
         if(typeof(onIterate) === 'function'){
             onIterate(n, ()=>{
@@ -44,7 +44,7 @@ exports.iterate = function(iter, onIterate, onComplete){
  * @param onIterate: function(node:object, next:function())
  * @param onComplete: function()
  * */
-exports.iterate_async = function(iter, interval, onIterate, onComplete){
+exports.iterate_async = function(iter, interval, onIterate, onComplete) {
     iter.status = 'ready';
 
     let on_it = function(n){
@@ -78,7 +78,7 @@ exports.iterate_async = function(iter, interval, onIterate, onComplete){
     }, interval);
 };
 
-exports.array_iter = function(array){
+exports.array_iter = function(array) {
     if(!(this instanceof exports.array_iter)){
         return new exports.array_iter(array);
     }
@@ -98,7 +98,7 @@ exports.array_iter = function(array){
     };
 };
 
-exports.map_iter = function(map){
+exports.map_iter = function(map) {
     if(!(this instanceof exports.map_iter)){
         return new exports.map_iter(map);
     }
@@ -120,7 +120,7 @@ exports.map_iter = function(map){
     };
 };
 
-exports.slice_iter = function(array, slice){
+exports.slice_iter = function(array, slice) {
     if(!(this instanceof exports.slice_iter)){
         return new exports.slice_iter(array, slice);
     }

@@ -2,10 +2,7 @@ let mysql = require("mysql");
 
 let pool = null;
 
-let nop = function (a, b, c, d, e, f, g) {
-};
-
-exports.init = function (config) {
+exports.init = function(config) {
     pool = mysql.createPool({
         host: config.host,
         port: config.port,
@@ -15,9 +12,7 @@ exports.init = function (config) {
     });
 };
 
-exports.nop = nop;
-
-exports.query = function (sql, logsql = true) {
+exports.query = function(sql, logsql = true) {
     return new Promise((resolve, reject)=>{
         if(logsql){
             console.log(`db: ${sql}`);

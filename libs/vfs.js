@@ -4,8 +4,8 @@ let path = require("path");
 
 let VFS = function(root){
 	// absolute path
-	VFS.prototype.abs_path = function(path){
-		return path.join(root, path);
+	VFS.prototype.absolutePath = function(p){
+		return path.join(root, p);
 	};
 	
 	// callback : function(base:string, ele:string, info:object)
@@ -90,6 +90,10 @@ let VFS = function(root){
     };
 };
 
-exports.create = function(root){
+exports.create = function(root) {
 	return new VFS(root);
 };
+
+exports.absolutePath = function(p) {
+	return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+}

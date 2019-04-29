@@ -2,9 +2,9 @@
 let ext = require('./ext');
 ext.array();
 
-let test_schedule = function(schedule, now){
+let test_schedule = function(schedule, now) {
 
-    let test_schedule_component = function(c, n){
+    let test_schedule_component = function(c, n) {
         if(c !== undefined && c !== '*'){
             let t = typeof(c);
             if(t === 'number' && c !== n){
@@ -44,7 +44,7 @@ let test_schedule = function(schedule, now){
     return true;
 };
 
-let in_the_same_second = function(time1, time2){
+let in_the_same_second = function(time1, time2) {
     return time1.getSeconds() === time2.getSeconds()
         && time1.getMinutes() === time2.getMinutes()
         && time1.getHours() === time2.getHours()
@@ -52,7 +52,7 @@ let in_the_same_second = function(time1, time2){
         && time1.getFullYear() === time2.getFullYear();
 };
 
-let Schedule = function(schedule, precision){
+let Schedule = function(schedule, precision) {
     if(!(this instanceof Schedule)){
         return new Schedule(schedule);
     }
@@ -62,13 +62,13 @@ let Schedule = function(schedule, precision){
 
     let interval = undefined;
 
-    this.start = function(callback){
+    this.start = function(callback) {
         if(!schedule || typeof(callback) !== 'function'){
             return false;
         }
 
         let last = undefined;
-        interval = setInterval(()=>{
+        interval = setInterval(() => {
             let now = new Date();
             if (last && in_the_same_second(last, now)){
                 return;
@@ -84,14 +84,14 @@ let Schedule = function(schedule, precision){
         return interval !== undefined;
     };
 
-    this.stop = function(){
+    this.stop = function() {
         if(interval === undefined){
             return;
         }
         clearInterval(interval);
     };
 
-    this.running = function(){
+    this.running = function() {
         return interval !== undefined;
     }
 };

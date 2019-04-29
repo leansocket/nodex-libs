@@ -2,7 +2,7 @@
 let zlib = require('zlib');
 let iconv = require('iconv-lite');
 
-exports.decompress = async function(res){
+exports.decompress = async function(res) {
     return await new Promise((resolve, reject)=>{
         if(res.headers['Content-Encoding'] === 'gzip'){
             zlib.gunzip(res.content, (err, ret)=>{
@@ -18,7 +18,7 @@ exports.decompress = async function(res){
     });
 };
 
-exports.decode = async function(res){
+exports.decode = async function(res) {
     return await new Promise((resolve, reject)=>{
         let content_type = res.headers['content-type'];
         if(!content_type){
@@ -36,7 +36,7 @@ exports.decode = async function(res){
     });
 };
 
-exports.load = async function(res){
+exports.load = async function(res) {
     res = await exports.decompress(res);
     res = await exports.decode(res);
     return res;

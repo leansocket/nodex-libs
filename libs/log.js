@@ -3,7 +3,7 @@ let colors = require("colors");
 
 exports.init = function(scope) {
 
-	let tostr = function(message){
+	let tostr = function(message) {
 		let otype = typeof(message);
         if(otype === 'undefined'){
             message = 'undefined';
@@ -24,23 +24,23 @@ exports.init = function(scope) {
     let console_log = console.log;
 	
 	let log_list = {
-		log : function(message){
+		log : function(message) {
 			console_log(tolog(tostr(message).white));
 		},
 
-		info: function(message){
+		info: function(message) {
 			console_log(tolog(tostr(message)['green']));
 		},
 
-		notice: function (message) {
+		notice: function(message) {
 		    console_log(tolog(tostr(message).blue));
 		},
 
-		warn : function(message){
+		warn : function(message) {
 		    console_log(tolog(tostr(message).yellow));
 		},
 
-		error : function(message){
+		error : function(message) {
 		    console_log(tolog(tostr(message).red.bold));
 		},
 	};
