@@ -264,6 +264,9 @@ exports.webapp = function(args) {
             app.use(args.body);
         }
     }
+    else if(args.body !== false){
+        app.use(koa_body());
+    }
 
     if (args.https_cert && args.https_key){
         app.listen_safely = function(){
