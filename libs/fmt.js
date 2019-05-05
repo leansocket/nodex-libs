@@ -50,56 +50,95 @@ exports.must_have_all = function(obj, fields){
     }
 };
 
-exports.regs = {
-    alpha: /^[a-zA-Z]+$/,
-    number: /^\d+$/,
-    integer: /^[-+]?\d+$/,
-    float: /^[-+]?\d+(\.\d+)?$/,
-    hex: /^(0x|0X)?[a-fA-F\d]+$/,
-    word: /^\w+$/,
-    chinese: /^[\u4E00-\u9FA5]+$/,
+exports.rules = {
+    'string': {
+        test: function(val) {
+            return typeof(val) === 'string';
+        }
+    },
+    'number': {
+        test: function(val){
+            return typeof(val) === 'number';
+        }
+    },
+    'boolean': {
+        test: function(val) {
+            return typeof(val) === 'boolean';
+        }
+    },
+    'function': {
+        test: function(val) {
+            return typeof(val) === 'function';
+        }
+    },
+    'object': {
+        test: function(val) {
+            return typeof(val) === 'object';
+        }
+    },
+    'array': {
+        test: function(val) {
+            return Array.isArray(val);
+        }
+    },
+    'integer': {
+        test: function(val) {
+            return typeof(val) === 'number' && exports.rules['integer_str'].test(val);
+        }
+    },
+    'float': {
+        test: function(val) {
+            return typeof(val) === 'number' && exports.rules['float_str'].test(val);
+        }
+    },
 
-    username: /^\w+$/,
-    password: /^[\w~!@#$%^&*()+=\-.,:{}\[\]|\\]+$/,
-    email: /^[\w\-]+(\.[\w\-]+)*@[\w\-]+(\.[\w\-]+)+$/,
-    url: /^[a-zA-z]+:\/\/(\w+(-\w+)*)(\.(\w+(-\w+)*))*(\?\S*)?$/,
-    ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-    ipv6: /^$/
+    'alpha': /^[a-zA-Z]+$/,
+    'number_str': /^\d+$/,
+    'integer_str': /^[-+]?\d+$/,
+    'float_str': /^[-+]?\d+(\.\d+)?$/,
+    'hex': /^(0x|0X)?[a-fA-F\d]+$/,
+    'word': /^\w+$/,
+    'chinese': /^[\u4E00-\u9FA5]+$/,
+
+    'username': /^\w+$/,
+    'password': /^[\w~!@#$%^&*()+=\-.,:{}\[\]|\\]+$/,
+    'email': /^[\w\-]+(\.[\w\-]+)*@[\w\-]+(\.[\w\-]+)+$/,
+    'url': /^[a-zA-z]+:\/\/(\w+(-\w+)*)(\.(\w+(-\w+)*))*(\?\S*)?$/,
+    'ipv4': /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+    'ipv6': /^$/
 };
 
 exports.check = function(field, format, minlen, maxlen){
     if(field === null || field === undefined){
         throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`)
     }
-    if(typeof(field) === 'object' || typeof(field) === 'function'){
-        throw Error.make('ERR_TYPE_INVALID', `data-type of field is invalid.`);
-    }
 
     let str = field.toString();
 
-    if(typeof(format) === 'string'){
-        if(format === '*'){
-            // do nothing.
+    if(format === '*'){
+        // do nothing.
+    }       
+    else if(typeof(format) === 'string') {
+        let rule = exports.rules[format];
+        if(!rule) {
+            throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
         }
-        else {
-            let reg = exports.regs[format];
-            if(reg === undefined) {
-                throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
-            }
-            if(!exports.regs[format].test(str)){
-                throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
-            }
+        if(!rule.test(field)){
+            throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
         }
     }
-    else if(format instanceof RegExp && !format.test(str)){
+    else if(format instanceof RegExp && !format.test(field.toString())) {
         throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
     }
+    else {
+        throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
+    }
 
-    if(typeof(minlen) === 'number' && str.length < minlen){
+    if(typeof(minlen) === 'number' && str.length < minlen) {
         throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);
     }
 
-    if(typeof(maxlen) === 'number' && str.length > maxlen){
+    if(typeof(maxlen) === 'number' && str.length > maxlen) {
         throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too long.`);
     }
 };
