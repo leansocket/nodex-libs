@@ -127,8 +127,10 @@ exports.check = function(field, format, minlen, maxlen){
             throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
         }
     }
-    else if(format instanceof RegExp && !format.test(field.toString())) {
-        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
+    else if(format instanceof RegExp) {
+        if(!format.test(str)){ 
+            throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
+        }
     }
     else {
         throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
