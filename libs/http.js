@@ -239,6 +239,10 @@ exports.webapp = function(args) {
         }
     });
 
+    if(args.proxy){
+        app.proxy = true;
+    }
+
     if(args.log){
         app.use(async (ctx, next) => {
             let req = ctx.request;

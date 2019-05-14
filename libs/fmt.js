@@ -112,9 +112,7 @@ exports.check = function(field, format, minlen, maxlen){
     if(field === null || field === undefined){
         throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`)
     }
-
-    let str = field.toString();
-
+    
     if(format === '*'){
         // do nothing.
     }       
@@ -128,7 +126,7 @@ exports.check = function(field, format, minlen, maxlen){
         }
     }
     else if(format instanceof RegExp) {
-        if(!format.test(str)){ 
+        if(!format.test(field.toString())){ 
             throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
         }
     }
@@ -136,11 +134,21 @@ exports.check = function(field, format, minlen, maxlen){
         throw Error.make('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
     }
 
-    if(typeof(minlen) === 'number' && str.length < minlen) {
-        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);
+    let length = (field) => {
+        if(typeof(field.length) === 'number') {
+            return field.length;
+        }
+        if(typeof(field.length) === 'function') {
+            return field.length();
+        }
+        return field.toString().length;
+    };
+
+    if(typeof(minlen) === 'number' && length(field) < minlen) {
+        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);     
     }
 
-    if(typeof(maxlen) === 'number' && str.length > maxlen) {
+    if(typeof(maxlen) === 'number' && length(field) > maxlen) {
         throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too long.`);
     }
 };

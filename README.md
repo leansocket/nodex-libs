@@ -138,6 +138,11 @@ for(let i = 0; i < 10; i++){
 }
 ```
 
+## Release Note
+
+### 1.2.5
+* fmt.check: minlen & maxlen support field.length and field.length();
+* http.webapp(args): add a new boolean field args.proxy for x-forwarded-for;
 
 ## License
 
