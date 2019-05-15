@@ -171,7 +171,11 @@ let doPost = function(args, data, callback) {
         return callback(err, null);
     }
 
-    if(options.headers === undefined || options.headers === null){
+    if(typeof(options.headers) === 'object'){
+        options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
+        options.headers['Content-Length'] = content_len;
+    }
+    else {
         options.headers = {
             'Content-Type': 'application/json',
             'Content-Length': content_len,
@@ -266,6 +270,9 @@ exports.webapp = function(args) {
         }
         else if(bodyType === 'function'){
             app.use(args.body);
+        }
+        else {
+            app.use(koa_body());
         }
     }
     else if(args.body !== false){
