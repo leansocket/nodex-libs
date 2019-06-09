@@ -30,12 +30,12 @@ function requestbody(opts) {
     opts.formidable = 'formidable' in opts ? opts.formidable : {};
     opts.includeUnparsed = 'includeUnparsed' in opts ? opts.includeUnparsed : false
     opts.textLimit = 'textLimit' in opts ? opts.textLimit : '56kb';
-    opts.parsedMethod = 'parsedMethod' in opts ? opts.parsedMethod : ['POST', 'PUT', 'PATCH'];
+    opts.parsedMethods = 'parsedMethods' in opts ? opts.parsedMethods : ['POST', 'PUT', 'PATCH'];
 
     return function (ctx, next) {
         let bodyPromise;
 
-        if (opts.parsedMethod.indexOf(ctx.method.toUpperCase()) === -1) {
+        if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) === -1) {
             try {
                 if (opts.json && ctx.is('json')) {
                     bodyPromise = buddy.json(ctx, {

@@ -140,8 +140,11 @@ for(let i = 0; i < 10; i++){
 
 ## Release Note
 
-### 1.2.7
-* Changed the type of body.formidable.onFileBegin to (ctx, name, file) => void;
+### 1.2.8
+* Updated the version of dependencies.
+* Changed the type of body options.formidable.onFileBegin to (ctx, name, file) => void;
+* Removed body options.strict.
+* Added options.parsedMethods which is an array of HTTP methods will be parsed by body.
 
 ### 1.2.5
 * fmt.check: minlen & maxlen support field.length and field.length();
