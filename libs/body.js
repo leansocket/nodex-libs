@@ -30,12 +30,12 @@ function requestbody(opts) {
     opts.formidable = 'formidable' in opts ? opts.formidable : {};
     opts.includeUnparsed = 'includeUnparsed' in opts ? opts.includeUnparsed : false
     opts.textLimit = 'textLimit' in opts ? opts.textLimit : '56kb';
-    opts.strict = 'strict' in opts ? opts.strict : true;
+    opts.parsedMethod = 'parsedMethod' in opts ? opts.parsedMethod : ['POST', 'PUT', 'PATCH'];
 
     return function (ctx, next) {
         let bodyPromise;
-        // so don't parse the body in strict mode
-        if (!opts.strict || ["GET", "HEAD", "DELETE"].indexOf(ctx.method.toUpperCase()) === -1) {
+
+        if (opts.parsedMethod.indexOf(ctx.method.toUpperCase()) === -1) {
             try {
                 if (opts.json && ctx.is('json')) {
                     bodyPromise = buddy.json(ctx, {
@@ -79,21 +79,22 @@ function requestbody(opts) {
         }
 
         bodyPromise = bodyPromise || Promise.resolve({});
-        return bodyPromise.catch(function(parsingError) {
+        
+        return bodyPromise.catch(function (parsingError) {
             if (typeof opts.onError === 'function') {
                 opts.onError(parsingError, ctx);
             } else {
                 throw parsingError;
             }
             return next();
-        }).then(function(body) {
+        }).then(function (body) {
             if (opts.patchNode) {
                 if (isMultiPart(ctx, opts)) {
                     ctx.req.body = body.fields;
                     ctx.req.files = body.files;
                 } else if (opts.includeUnparsed) {
                     ctx.req.body = body.parsed || {};
-                    if (! ctx.is('text')) {
+                    if (!ctx.is('text')) {
                         ctx.req.body[symbolUnparsed] = body.raw;
                     }
                 } else {
@@ -106,7 +107,7 @@ function requestbody(opts) {
                     ctx.request.files = body.files;
                 } else if (opts.includeUnparsed) {
                     ctx.request.body = body.parsed || {};
-                    if (! ctx.is('text')) {
+                    if (!ctx.is('text')) {
                         ctx.request.body[symbolUnparsed] = body.raw;
                     }
                 } else {
@@ -139,6 +140,8 @@ function isMultiPart(ctx, opts) {
  * @api private
  */
 function formy(ctx, opts) {
+    opts = opts || {};
+
     return new Promise(function (resolve, reject) {
         let fields = {};
         let files = {};
@@ -160,6 +163,10 @@ function formy(ctx, opts) {
             } else {
                 fields[field] = value;
             }
+        }).on('fileBegin', function(name, file){
+            if(opts.onFileBegin){
+                opts.onFileBegin(ctx, name, file);
+            }
         }).on('file', function (field, file) {
             if (files[field]) {
                 if (Array.isArray(files[field])) {
@@ -171,9 +178,6 @@ function formy(ctx, opts) {
                 files[field] = file;
             }
         });
-        if (opts.onFileBegin) {
-            form.on('fileBegin', opts.onFileBegin);
-        }
         form.parse(ctx.req);
     });
 }
