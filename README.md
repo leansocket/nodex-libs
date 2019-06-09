@@ -146,6 +146,9 @@ for(let i = 0; i < 10; i++){
 * Removed body options.strict.
 * Added options.parsedMethods which is an array of HTTP methods will be parsed by body.
 
+### 1.2.6
+* Fixed: http.post options.headers covered the inner HTTP headers.
+
 ### 1.2.5
 * fmt.check: minlen & maxlen support field.length and field.length();
 * http.webapp(args): add a new boolean field args.proxy for x-forwarded-for;
