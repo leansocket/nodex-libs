@@ -140,18 +140,18 @@ for(let i = 0; i < 10; i++){
 
 ## Release Note
 
-### 1.2.8
+### 1.2.9
 * Updated the version of dependencies.
-* Changed the type of body options.formidable.onFileBegin to (ctx, name, file) => void;
 * Removed body options.strict.
 * Added options.parsedMethods which is an array of HTTP methods will be parsed by body.
+* body options.formidable supported function-type which returns a options object for formidable.
 
 ### 1.2.6
 * Fixed: http.post options.headers covered the inner HTTP headers.
 
 ### 1.2.5
-* fmt.check: minlen & maxlen support field.length and field.length();
-* http.webapp(args): add a new boolean field args.proxy for x-forwarded-for;
+* fmt.check: minlen & maxlen supported field.length and field.length();
+* http.webapp(args): added a new boolean field args.proxy for x-forwarded-for;
 
 ## License
 

@@ -141,6 +141,9 @@ function isMultiPart(ctx, opts) {
  */
 function formy(ctx, opts) {
     opts = opts || {};
+    if(typeof(opts) === 'function'){
+        opts = opts(ctx);
+    }
 
     return new Promise(function (resolve, reject) {
         let fields = {};
@@ -165,7 +168,7 @@ function formy(ctx, opts) {
             }
         }).on('fileBegin', function(name, file){
             if(opts.onFileBegin){
-                opts.onFileBegin(ctx, name, file);
+                opts.onFileBegin(name, file);
             }
         }).on('file', function (field, file) {
             if (files[field]) {
