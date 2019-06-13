@@ -35,7 +35,7 @@ function requestbody(opts) {
     return function (ctx, next) {
         let bodyPromise;
 
-        if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) === -1) {
+        if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) >= 0) {
             try {
                 if (opts.json && ctx.is('json')) {
                     bodyPromise = buddy.json(ctx, {
