@@ -108,14 +108,14 @@ exports.rules = {
     'ipv6': /^$/
 };
 
-exports.check = function(field, format, minlen, maxlen){
+exports.optional = function(field, format, minlen, maxlen){
     if(field === null || field === undefined){
-        throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`)
+        return false;
     }
-    
+
     if(format === '*'){
         // do nothing.
-    }       
+    }
     else if(typeof(format) === 'string') {
         let rule = exports.rules[format];
         if(!rule) {
@@ -126,7 +126,7 @@ exports.check = function(field, format, minlen, maxlen){
         }
     }
     else if(format instanceof RegExp) {
-        if(!format.test(field.toString())){ 
+        if(!format.test(field.toString())){
             throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, '${format}' expected.`);
         }
     }
@@ -145,10 +145,24 @@ exports.check = function(field, format, minlen, maxlen){
     };
 
     if(typeof(minlen) === 'number' && length(field) < minlen) {
-        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);     
+        throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too short.`);
     }
 
     if(typeof(maxlen) === 'number' && length(field) > maxlen) {
         throw Error.make('ERR_FORMAT_INVALID', `data format of field is invalid, data is too long.`);
     }
+
+    return true;
+};
+
+exports.required = function(field, format, minlen, maxlen){
+    if(field === null || field === undefined){
+        throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`);
+    }
+    return exports.optional(field, format, minlen, maxlen);
+};
+
+exports.check = function(field, format, minlen, maxlen) {
+    console.warn(`'fmt.check' is obsolete, please use 'fmt.required' instead.`);
+    return exports.required(field, format, minlen, maxlen);
 };
