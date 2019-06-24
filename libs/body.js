@@ -168,7 +168,12 @@ function formy(ctx, opts) {
             }
         }).on('fileBegin', function(name, file){
             if(opts.onFileBegin){
-                opts.onFileBegin(name, file);
+                try {
+                    opts.onFileBegin(name, file);
+                }
+                catch(err) {
+                    form.emit('error', err);
+                }
             }
         }).on('file', function (field, file) {
             if (files[field]) {
