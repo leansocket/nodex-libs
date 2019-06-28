@@ -336,6 +336,11 @@ exports.webapp = function(args) {
     return app;
 };
 
+exports.body = function(options) {
+    let bodyParser = require('./body');
+    return bodyParser(options);
+}
+
 exports.send = function(ctx, arg1, arg2) {
     let message = util.makeXdata(arg1, arg2);
     //console.log(`http: send ${JSON.stringify(message)}`);
