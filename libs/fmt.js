@@ -108,8 +108,11 @@ exports.rules = {
     'ipv6': /^$/
 };
 
-exports.optional = function(field, format, minlen, maxlen){
-    if(field === null || field === undefined){
+exports.optional = function(field, format, minlen, maxlen, defaultValue){
+    if(field === undefined || field === null){
+        if(defaultValue !== undefined) {
+            field = defaultValue;
+        }
         return false;
     }
 
@@ -156,7 +159,7 @@ exports.optional = function(field, format, minlen, maxlen){
 };
 
 exports.required = function(field, format, minlen, maxlen){
-    if(field === null || field === undefined){
+    if(field === undefined || field === null){
         throw Error.make('ERR_FIELD_REQUIRED', `field is null or undefined.`);
     }
     return exports.optional(field, format, minlen, maxlen);
