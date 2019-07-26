@@ -8,8 +8,7 @@ exports.init = function(config) {
         port: config.port,
         user: config.user,
         password: config.pswd,
-        database: config.db,
-        multipleStatements: true
+        database: config.db
     });
 };
 
