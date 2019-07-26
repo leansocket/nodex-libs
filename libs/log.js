@@ -1,51 +1,49 @@
 
-let colors = require("colors");
+let chalk = require("chalk");
 
 exports.init = function(scope) {
 
 	let tostr = function(message) {
-		let otype = typeof(message);
-        if(otype === 'undefined'){
-            message = 'undefined';
-        }
-        else if (otype === "object") {
-            message = JSON.stringify(message);
-        }
+        if(message === undefined){
+        	return 'undefined';
+		}
+		if(message === null){
+        	return 'null';
+		}
+		let type = typeof(message);
+		if(type === 'object'){
+			return JSON.stringify(message);
+		}
         return message;
 	};
 
 	let tolog = function(message) {
 	    let t = new Date();
-	    let timestr = t.getFullYear() + "/" + (t.getMonth()+1) + "/" + t.getDate()
-	        + " " + t.getHours() + ":" + t.getMinutes() + ":" + t.getSeconds();
-		return scope + " " + timestr + " " + message;
+	    let Y = t.getFullYear();
+	    let M = t.getMonth();
+	    let D = t.getDate();
+	    let h = t.getHours();
+	    let m = t.getMinutes();
+	    let s = t.getSeconds();
+	    let timestr = `${Y}/${M}/${D} ${h}:${m}:${s}`;
+	    let logstr = `${timestr} [${scope}] ${message}`;
+	    return logstr;
+	};
+
+	let themes = {
+		log: chalk.white,
+		info: chalk.green,
+		notice: chalk.blue,
+		warn: chalk.yellow.bold,
+		error: chalk.red.bold,
 	};
 
     let console_log = console.log;
-	
-	let log_list = {
-		log : function(message) {
-			console_log(tolog(tostr(message).white));
-		},
 
-		info: function(message) {
-			console_log(tolog(tostr(message)['green']));
-		},
-
-		notice: function(message) {
-		    console_log(tolog(tostr(message).blue));
-		},
-
-		warn : function(message) {
-		    console_log(tolog(tostr(message).yellow));
-		},
-
-		error : function(message) {
-		    console_log(tolog(tostr(message).red.bold));
-		},
-	};
-	
-	for(let x in log_list){
-		console[x] = log_list[x];
+	for(let x in themes){
+		console[x] = function(message){
+            let str = tolog(tostr(message));
+            console_log(themes[x](str));
+		};
 	}
 };

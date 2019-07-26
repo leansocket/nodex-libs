@@ -2,9 +2,9 @@
 let ext = require('./ext');
 ext.array();
 
-let test_schedule = function(schedule, now) {
+let testSchedule = function(schedule, now) {
 
-    let test_schedule_component = function(c, n) {
+    let testScheduleComponent = function(c, n) {
         if(c !== undefined && c !== '*'){
             let t = typeof(c);
             if(t === 'number' && c !== n){
@@ -20,31 +20,31 @@ let test_schedule = function(schedule, now) {
         return true;
     };
 
-    if(!test_schedule_component(schedule.Y, now.getFullYear())){
+    if(!testScheduleComponent(schedule.Y, now.getFullYear())){
         return false;
     }
-    if(!test_schedule_component(schedule.M, now.getMonth())){
+    if(!testScheduleComponent(schedule.M, now.getMonth())){
         return false;
     }
-    if(!test_schedule_component(schedule.D, now.getDate())){
+    if(!testScheduleComponent(schedule.D, now.getDate())){
         return false;
     }
-    if(!test_schedule_component(schedule.d, now.getDay())){
+    if(!testScheduleComponent(schedule.d, now.getDay())){
         return false;
     }
-    if(!test_schedule_component(schedule.h, now.getHours())){
+    if(!testScheduleComponent(schedule.h, now.getHours())){
         return false;
     }
-    if(!test_schedule_component(schedule.m, now.getMinutes())){
+    if(!testScheduleComponent(schedule.m, now.getMinutes())){
         return false;
     }
-    if(!test_schedule_component(schedule.s, now.getSeconds())){
+    if(!testScheduleComponent(schedule.s, now.getSeconds())){
         return false;
     }
     return true;
 };
 
-let in_the_same_second = function(time1, time2) {
+let inTheSameSecond = function(time1, time2) {
     return time1.getSeconds() === time2.getSeconds()
         && time1.getMinutes() === time2.getMinutes()
         && time1.getHours() === time2.getHours()
@@ -70,10 +70,10 @@ let Schedule = function(schedule, precision) {
         let last = undefined;
         interval = setInterval(() => {
             let now = new Date();
-            if (last && in_the_same_second(last, now)){
+            if (last && inTheSameSecond(last, now)){
                 return;
             }
-            if(!test_schedule(schedule, now)){
+            if(!testSchedule(schedule, now)){
                 return;
             }
             last = now;

@@ -9,6 +9,7 @@ exports.init = function(config) {
         user: config.user,
         password: config.pswd,
         database: config.db,
+        multipleStatements: true
     });
 };
 

@@ -5,6 +5,7 @@ let libs = require('../index');
     libs.log.init('nodex-libs-test');
     console.log('this is console.log');
     console.info('this is console.info');
+    console.notice('this is console.notice');
     console.warn('this is console.warn');
     console.error('this is console.error');
 }
