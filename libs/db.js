@@ -12,35 +12,10 @@ exports.init = function(config) {
     });
 };
 
-exports.query = function(sql, logsql = true) {
-    return new Promise((resolve, reject)=>{
-        if(logsql){
-            console.log(`db: ${sql}`);
-        }
-
-        pool.getConnection((error, conn) => {
-            if (error) {
-                console.log(`db: ${error.message}`);
-                return reject(error);
-            }
-
-            conn.query(sql, (error, results, fields) => {
-                conn.release();
-                if (error) {
-                    console.log(`db: ${error.message}`);
-                    return reject(error);
-                }
-
-                return resolve(results, fields);
-            });
-        });
-    });
-};
-
-exports.transaction = function(autoRelease = true) {
+exports.transaction = async function(autoRelease = true) {
     let Tx = function(conn, autoRelease){
-        this.query = function(sql, logsql = true){
-            return new Promise((resolve, reject)=>{
+        this.query = async function(sql, logsql = true){
+            return await new Promise((resolve, reject)=>{
                 if(logsql){
                     console.log(`db: ${sql}`);
                 }
@@ -81,7 +56,7 @@ exports.transaction = function(autoRelease = true) {
         };
     };
 
-    return new Promise((resolve, reject)=>{
+    return await new Promise((resolve, reject)=>{
         pool.getConnection(function (error, conn) {
             if (error) {
                 console.log(`db: ${error.message}`);
@@ -96,4 +71,67 @@ exports.transaction = function(autoRelease = true) {
             });
         });
     });
+};
+
+exports.query = async function(sql, logsql = true) {
+    return await new Promise((resolve, reject)=>{
+        if(logsql){
+            console.log(`db: ${sql}`);
+        }
+
+        pool.getConnection((error, conn) => {
+            if (error) {
+                console.log(`db: ${error.message}`);
+                return reject(error);
+            }
+
+            conn.query(sql, (error, results, fields) => {
+                conn.release();
+                if (error) {
+                    console.log(`db: ${error.message}`);
+                    return reject(error);
+                }
+
+                return resolve(results, fields);
+            });
+        });
+    });
+};
+
+exports.page = async function(sql, page, size) {
+    if (!sql || typeof(sql) !== 'string'){
+        throw Error.make('ERR_SQL_SYNTAX', 'the sql syntax is error.');
+    }
+
+    if (sql.indexOf('limit') === -1 &&
+        sql.indexOf('LIMIT') === -1) {
+        if(page >= 0 && size > 0) {
+            if(sql.endsWith(';')){
+                sql = sql.substr(0, sql.length - 1);
+            }
+            sql = sql + ` limit ${(page - 1) * size}, ${size};`;
+        }
+    }
+
+    let calc_sql_found_rows =
+        sql.indexOf('sql_calc_found_rows') > 0 ||
+        sql.indexOf('SQL_CALC_FOUND_ROWS') > 0;
+
+    if(!calc_sql_found_rows) {
+        let results = await exports.query(sql);
+        return {
+            list: results,
+            count: list.length,
+        };
+    }
+
+    let tx = await exports.transaction();
+    let rsList = await tx.query(sql);
+    let rsCount = await tx.query(`select FOUND_ROWS() as count;`);
+    tx.release();
+
+    return {
+        list: rsList,
+        count: rsCount.length > 0 ? rsCount[0].count : 0
+    };
 };
