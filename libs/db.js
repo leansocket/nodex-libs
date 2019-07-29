@@ -120,14 +120,14 @@ exports.page = async function(sql, page, size) {
     if(!calc_sql_found_rows) {
         let results = await exports.query(sql);
         return {
-            list: results,
-            count: list.length,
+            data: results || [],
+            count: results.length || 0,
         };
     }
 
     let tx = await exports.transaction();
     let rsList = await tx.query(sql);
-    let rsCount = await tx.query(`select FOUND_ROWS() as count;`);
+    let rsCount = await tx.query(`select FOUND_ROWS() as 'count';`);
     tx.release();
 
     return {
