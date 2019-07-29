@@ -4,8 +4,11 @@ let https = require('https');
 let liburl = require('url');
 let query = require('querystring');
 
+let ext = require('./ext');
 let vfs = require('./vfs');
 let util = require('./util');
+
+ext.error();
 
 exports.isHttps = function(url) {
     return url.indexOf('https://') === 0;
@@ -104,8 +107,7 @@ let doGet = function(args, data, callback) {
         safe = exports.isHttps(args);
     }
     else {
-        let err = new Error('invalid args.');
-        err.code = 'ERR_InvalidArgs';
+        let err = Error.make('ERR_INVALID_ARGS', 'the args of http.doGet is invalid.');
         console.log(`http: ${err.message}`);
         return callback(err, null);
     }
@@ -165,8 +167,7 @@ let doPost = function(args, data, callback) {
         safe = exports.isHttps(args);
     }
     else {
-        let err = new Error('invalid args.');
-        err.code = 'ERR_InvalidArgs';
+        let err = Error.make('ERR_INVALID_ARGS', 'the args of http.doPost is invalid.');
         console.log(`http: ${err.message}`);
         return callback(err, null);
     }
@@ -353,4 +354,14 @@ exports.error = function(ctx, err, ret) {
         return true;
     }
     return false;
+};
+
+exports.handle = function(func) {
+    if(typeof(func) !== 'function'){
+        throw Error.make(`ERR_INVALID_ARGS`, `the type of 'func' is invalid.`);
+    }
+    return async function(ctx) {
+        let ret = func(ctx.request.body);
+        exports.send(ctx, ret);
+    };
 };
