@@ -29,25 +29,33 @@ exports.transaction = async function(autoRelease = true) {
             });
         };
 
-        this.rollback = function(){
-            conn.rollback((err)=>{
-                if(err){
-                    console.log(`db: ${err.message}`);
-                }
-                if(autoRelease){
-                    conn.release();
-                }
+        this.commit = async function(){
+            return await new Promise(function(resolve, reject){
+                conn.commit((err)=>{
+                    if(err){
+                        console.log(`db: ${err.message}`);
+                        return reject(err);
+                    }
+                    if(autoRelease){
+                        conn.release();
+                    }
+                    return resolve(autoRelease);
+                });
             });
         };
 
-        this.commit = function(){
-            conn.commit((err)=>{
-                if(err){
-                    console.log(`db: ${err.message}`);
-                }
-                if(autoRelease){
-                    conn.release();
-                }
+        this.rollback = async function(){
+            return await new Promise(function(resolve, reject){
+                conn.rollback((err)=>{
+                    if(err){
+                        console.log(`db: ${err.message}`);
+                        return reject(err);
+                    }
+                    if(autoRelease){
+                        conn.release();
+                    }
+                    return resolve(autoRelease);
+                });
             });
         };
 
@@ -128,10 +136,10 @@ exports.page = async function(sql, page, size) {
     let tx = await exports.transaction();
     let rsList = await tx.query(sql);
     let rsCount = await tx.query(`select FOUND_ROWS() as 'count';`);
-    tx.release();
+    await tx.commit();
 
     return {
-        list: rsList,
+        data: rsList,
         count: rsCount.length > 0 ? rsCount[0].count : 0
     };
 };
