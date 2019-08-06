@@ -203,8 +203,8 @@ let doPost = function(args, data, callback) {
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.get = function(args, data) {
-    return new Promise((resolve, reject)=>{
+exports.get = async function(args, data) {
+    return await new Promise((resolve, reject)=>{
         doGet(args, data, (error, content)=>{
             if(error){
                 return reject(error);
@@ -215,8 +215,8 @@ exports.get = function(args, data) {
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.post = function(args, data) {
-    return new Promise((resolve, reject)=>{
+exports.post = async function(args, data) {
+    return await new Promise((resolve, reject)=>{
         doPost(args, data, (error, content)=>{
             if(error){
                 return reject(error);
@@ -224,6 +224,18 @@ exports.post = function(args, data) {
             return resolve(content);
         });
     });
+};
+
+exports.rpc = async function(args, data) {
+    let ret = await exports.post(args, data);
+    if(!ret || ret.status !== 200 || !ret.content){
+        throw Error.make(`ERR_HTTP_RPC`, `invoke http rpc failed.`);
+    }
+    let content = ret.content;
+    if(content.result !== 'ok'){
+        throw Error.make(content.result, content.error);
+    }
+    return content;
 };
 
 exports.webapp = function(args) {
