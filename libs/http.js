@@ -361,7 +361,7 @@ exports.handle = function(func) {
         throw Error.make(`ERR_INVALID_ARGS`, `the type of 'func' is invalid.`);
     }
     return async function(ctx) {
-        let ret = func(ctx.request.body);
+        let ret = await func(ctx.request.body);
         exports.send(ctx, ret);
     };
 };
