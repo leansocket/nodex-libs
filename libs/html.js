@@ -1,6 +1,7 @@
 
 let zlib = require('zlib');
 let iconv = require('iconv-lite');
+let escape = require('escape-html');
 
 exports.decompress = async function(res) {
     return await new Promise((resolve, reject)=>{
@@ -40,4 +41,8 @@ exports.load = async function(res) {
     res = await exports.decompress(res);
     res = await exports.decode(res);
     return res;
+};
+
+exports.escape = async function(html) {
+    return await escape(html);
 };

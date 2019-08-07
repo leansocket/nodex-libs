@@ -94,3 +94,22 @@ exports.makeXdata = function(arg0, arg1) {
         return xdata;
     }
 };
+
+exports.computeGeoDistance = function(lat1, lng1, lat2, lng2) {
+    let sqrt = Math.sqrt;
+    let sin = Math.sin;
+    let cos = Math.cos;
+    let asin = Math.asin;
+
+    let R = 6378.137;
+
+    let RPA = Math.PI / 180.0;
+    lat1 = lat1 * RPA;
+    lng1 = lng1 * RPA;
+    lat2 = lat2 * RPA;
+    lng2 = lng2 * RPA;
+
+    let a = (lat1 - lat2) / 2;
+    let b = (lng1 - lng2) / 2;
+    return R * 2 * asin(sqrt(sin(a) * sin(a) + cos(lat1) * cos(lat2) * sin(b) * sin(b)));
+};

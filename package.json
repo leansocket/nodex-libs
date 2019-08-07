@@ -1,11 +1,12 @@
 {
   "name": "nodex-libs",
-  "version": "1.2.27",
+  "version": "1.2.28",
   "description": "a nodejs library",
   "main": "index-libs",
   "dependencies": {
     "chalk": "^2.4.2",
     "co-body": "^6.0.0",
+    "escape-html": "^1.0.3",
     "formidable": "^1.2.1",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
