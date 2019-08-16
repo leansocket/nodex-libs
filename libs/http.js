@@ -226,7 +226,7 @@ exports.post = async function(args, data) {
     });
 };
 
-exports.rpc = async function(args, data) {
+exports.call = async function(args, data) {
     let ret = await exports.post(args, data);
     if(!ret || ret.status !== 200 || !ret.content){
         throw Error.make(`ERR_HTTP_RPC`, `invoke http rpc failed.`);
@@ -236,6 +236,27 @@ exports.rpc = async function(args, data) {
         throw Error.make(content.result, content.error);
     }
     return content;
+};
+
+exports.rpc = function(base, rps) {
+    const toCamelCase = function (name) {
+        return name.replace(/_(\w)/g, (all, letter) => letter.toUpperCase());
+    };
+
+    let lm = {};
+    Object.keys(rps).forEach(key => {
+       let rm = rps[key];
+        if(!Array.isArray(rm)){
+            return;
+        }
+        rm.forEach(rp => {
+            let lp = toCamelCase(rp);
+            lm[lp] = async function(data){
+                exports.call(`${base}/${rm}/${rp}`, data);
+            };
+        });
+    });
+    return lm;
 };
 
 exports.webapp = function(args) {

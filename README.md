@@ -140,6 +140,51 @@ for(let i = 0; i < 10; i++){
 
 ## Release Note
 
+### 1.3.0
+* NEW: added a new api: http.call and replaced http.rpc with this api.
+* MOD: modified the api http.rpc to make a http-rpc object.
+
+### 1.2.28
+* NEW: added a new api: util.computeGeoDistance to compute the distance of two points on the Earth.
+* NEW: added a new api: html.escape to escape the special characters in html-string.
+
+### 1.2.27
+* NEW: added a new api: http.rpc to request remote services.
+
+### 1.2.26
+* FIX: fixed a bug of http.handle.
+
+### 1.2.25
+* ENH: db.transaction.commit&rollback were async function.
+
+### 1.2.24
+* MOD: modified the name of http errors.
+* NEW: added a new api: http.handle to make a kind of common used middlewares of koa.
+
+### 1.2.23
+* NEW: added a new api: db.page.
+
+### 1.2.16
+* MOD: changed name of 'schedule' to camel case.
+
+### 1.2.15
+* MOD: replaced the dependency 'colors' with 'chalk'.
+* MOD: used 'chalk' to implement the module 'log'.
+
+### 1.2.14
+* ENH: updated some regular rules for fmt.
+* ENH: fmt.optional supported defaultValue.
+
+### 1.2.13
+* ENH: handled errors of multi-part-file.
+* NEW: added a new api: http.body to make a custom body-parser.
+
+### 1.2.11
+* MOD: modified the fmt.check to fmt.required and fmt.optional.
+
+### 1.2.10
+* FIX: fixed a bug of body-parser.
+
 ### 1.2.9
 * Updated the version of dependencies.
 * Removed body options.strict.
