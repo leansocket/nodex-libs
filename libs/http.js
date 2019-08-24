@@ -1,6 +1,6 @@
 
 let http = require('http');
-let https = require('https');
+let http2 = require('http2');
 let liburl = require('url');
 let query = require('querystring');
 
@@ -116,7 +116,7 @@ let doGet = function(args, data, callback) {
         callback = data;
     }
 
-    let proto = safe ? https : http;
+    let proto = safe ? http2 : http;
 
     let req = proto.request(options, (res)=>{
         return onRes(res, callback);
@@ -187,7 +187,7 @@ let doPost = function(args, data, callback) {
         callback = data;
     }
 
-    let proto = safe ? https : http;
+    let proto = safe ? http2 : http;
 
     let req = proto.request(options, (res)=>{
         onRes(res, callback);
@@ -327,7 +327,7 @@ exports.webapp = function(args) {
             let key = fs.readFileSync(vfs.absolutePath(args.https_key));
             let options = {cert: cert, key: key};
 
-            let server = https.createServer(options, app.callback());
+            let server = http2.createServer(options, app.callback());
             server.listen.apply(server, arguments);
         };
     }
