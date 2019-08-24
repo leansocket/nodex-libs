@@ -140,6 +140,9 @@ for(let i = 0; i < 10; i++){
 
 ## Release Note
 
+### 1.3.1
+* NEW: supported http2.
+
 ### 1.3.0
 * NEW: added a new api: http.call and replaced http.rpc with this api.
 * MOD: modified the api http.rpc to make a http-rpc object.
