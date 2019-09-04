@@ -253,7 +253,7 @@ exports.rpc = function(base, rps) {
         rm.forEach(rp => {
             let lp = toCamelCase(rp);
             lm[lp] = async function(data){
-                exports.call(`${base}/${rm}/${rp}`, data);
+                return await exports.call(`${base}/${key}/${rp}`, data);
             };
         });
     });
