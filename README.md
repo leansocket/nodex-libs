@@ -138,7 +138,34 @@ for(let i = 0; i < 10; i++){
 }
 ```
 
+Date and Time Operations:
+```js
+const libs = require('nodex-libs');
+const time = libs.time;
+
+// now
+let now = new time.TimePoint();
+now = time.now();
+console.log(now.toString('year-month-date hour:minute:second'));
+
+let yesterday = new time.TimePoint(now.value() - time.MS_PER_DAY);
+console.log(yesterday.toString());
+
+let span = now.sub(yesterday);
+console.log(`begin=${span.begin()}, end=${span.end()}`);
+
+let thisWeek = now.thisWeek();
+console.log(`begin=${thisWeek.begin()}, end=${thisWeek.end()}`);
+
+let duration = new time.Duration(time.MS_PER_DAY);
+console.log(`minutes: ${duration.accurateMinutes()}`)
+```
+
 ## Release Note
+
+### 1.4.0
+* NEW: added a new module time which provides apis for TimePoint & TimeSpan.
+* DEL: removed extension apis of String, Array, Function.
 
 ### 1.3.1
 * NEW: supported http2.

@@ -113,3 +113,4 @@ exports.computeGeoDistance = function(lat1, lng1, lat2, lng2) {
     let b = (lng1 - lng2) / 2;
     return R * 2 * asin(sqrt(sin(a) * sin(a) + cos(lat1) * cos(lat2) * sin(b) * sin(b)));
 };
+
