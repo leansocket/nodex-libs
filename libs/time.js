@@ -8,63 +8,63 @@ const MS_PER_WEEK = exports.MS_PER_WEEK = 86400 * 7;
 let Duration = exports.Duration = function(duration) {
     duration = Math.abs(duration);
     
-    this.prototype.value = function() {
+    Duration.prototype.value = function() {
         return duration;
     };
 
-    this.prototype.accurateMilliseconds = function() {
+    Duration.prototype.accurateMilliseconds = function() {
         return duration;
     };
 
-    this.prototype.accurateSeconds = function() {
+    Duration.prototype.accurateSeconds = function() {
         return duration / MS_PER_SECOND;
     };
 
-    this.prototype.accurateMinutes = function() {
+    Duration.prototype.accurateMinutes = function() {
         return duration / MS_PER_MINUTE;
     };
 
-    this.prototype.accurateHours = function() {
+    Duration.prototype.accurateHours = function() {
         return duration / MS_PER_HOUR;
     };
 
-    this.prototype.accurateDays = function() {
+    Duration.prototype.accurateDays = function() {
         return duration / MS_PER_DAY;
     };
 
-    this.prototype.accurateMonths = function() {
+    Duration.prototype.accurateMonths = function() {
         return duration / MS_PER_DAY / 30;
     };
 
-    this.prototype.accurateYears = function() {
+    Duration.prototype.accurateYears = function() {
         return duration / MS_PER_DAY / 30 / 12;
     };
 
-    this.prototype.milliseconds = function() {
+    Duration.prototype.milliseconds = function() {
         return Math.ceil(this.accurateMilliseconds());
     };
 
-    this.prototype.seconds = function() {
+    Duration.prototype.seconds = function() {
         return Math.ceil(this.accurateSeconds());
     };
 
-    this.prototype.minutes = function() {
+    Duration.prototype.minutes = function() {
         return Math.ceil(this.accurateMinutes());
     };
 
-    this.prototype.hours = function() {
+    Duration.prototype.hours = function() {
         return Math.ceil(this.accurateHours());
     };
 
-    this.prototype.days = function() {
+    Duration.prototype.days = function() {
         return Math.ceil(this.accurateDays());
     };
 
-    this.prototype.months = function() {
+    Duration.prototype.months = function() {
         return Math.ceil(this.accurateMonths());
     };
 
-    this.prototype.years = function() {
+    Duration.prototype.years = function() {
         return Math.ceil(this.accurateYears());
     };
 };
@@ -72,24 +72,24 @@ let Duration = exports.Duration = function(duration) {
 let TimeSpan = exports.TimeSpan = function(begin, end) {
     let duration = new Duration(end - begin);
 
-    this.prototype.begin = function(){
+    TimeSpan.prototype.begin = function(){
         return begin;
     };
 
-    this.prototype.end = function() {
+    TimeSpan.prototype.end = function() {
         return end;
     };
 
-    this.prototype.duration = function() {
+    TimeSpan.prototype.duration = function() {
         return duration;
     };
 
-    this.prototype.include = function(timePoint) {
+    TimeSpan.prototype.include = function(timePoint) {
         let tp = timePoint.value();
         return tp >= begin && tp < end;
     };
 
-    this.prototype.expand = function(timePoint) {
+    TimeSpan.prototype.expand = function(timePoint) {
         let tp = timePoint.value();
         if(begin > tp) {
             begin = tp;
@@ -101,13 +101,14 @@ let TimeSpan = exports.TimeSpan = function(begin, end) {
 };
 
 let TimePoint = exports.TimePoint = function(timestamp) {
-    let now = new Date(timestamp || Date.now());
+    timestamp = timestamp || Date.now();
+    let now = new Date(timestamp);
 
-    this.prototype.value = function() {
+    TimePoint.prototype.value = function() {
         return timestamp;
     };
 
-    this.prototype.dateTime = function() {
+    TimePoint.prototype.dateTime = function() {
         let year = now.getFullYear();
         let month = now.getMonth() + 1;
         let date = now.getDate();
@@ -119,10 +120,22 @@ let TimePoint = exports.TimePoint = function(timestamp) {
         return {year, month, date, day, hour, minute, second, ms};
     };
 
-    this.prototype.toString = function(fmt = 'year-month-date hour:minute:second') {
+    TimePoint.prototype.toString = function(fmt = 'year-month-date hour:minute:second') {
         let str = `${fmt}`;
 
+        let pad = function(val){
+            if(val < 10){
+                return `0${val}`;
+            }
+        };
+
         let dt = this.dateTime();
+        dt.month = pad(dt.month);
+        dt.date = pad(dt.date);
+        dt.hour = pad(dt.hour);
+        dt.minute = pad(dt.minute);
+        dt.second = pad(dt.second);
+
         for(let key in dt) {
             str = str.replace(key, dt[key]);
         }
@@ -130,47 +143,47 @@ let TimePoint = exports.TimePoint = function(timestamp) {
         return str;
     };
 
-    this.prototype.add = function(duration) {
+    TimePoint.prototype.add = function(duration) {
         return new TimePoint(this.value() + duration.value());
     };
 
-    this.prototype.sub = function(duration) {
+    TimePoint.prototype.sub = function(duration) {
         return new TimePoint(this.value() - duration.value());
     };
 
-    this.prototype.from = function(beginPoint) {
+    TimePoint.prototype.from = function(beginPoint) {
         return new TimeSpan(beginPoint.value(), this.value());
     };
 
-    this.prototype.to = function(endPoint) {
+    TimePoint.prototype.to = function(endPoint) {
         return new TimeSpan(this.value(), endPoint.value());
     };
 
-    this.prototype.thisSecond = function() {
+    TimePoint.prototype.thisSecond = function() {
         let beg = Math.floor(timestamp / MS_PER_SECOND) * MS_PER_SECOND;
         let end = Math.ceil(timestamp / MS_PER_SECOND) * MS_PER_SECOND;
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisMinute = function() {
+    TimePoint.prototype.thisMinute = function() {
         let beg = Math.floor(timestamp / MS_PER_MINUTE) * MS_PER_MINUTE;
         let end = Math.ceil(timestamp / MS_PER_MINUTE) * MS_PER_MINUTE;
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisHour = function() {
+    TimePoint.prototype.thisHour = function() {
         let beg = Math.floor(timestamp / MS_PER_HOUR) * MS_PER_HOUR;
         let end = Math.ceil(timestamp / MS_PER_HOUR) * MS_PER_HOUR;
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisDay = function() {
+    TimePoint.prototype.thisDay = function() {
         let beg = Math.floor(timestamp / MS_PER_DAY) * MS_PER_DAY;
         let end = Math.ceil(timestamp / MS_PER_DAY) * MS_PER_DAY;
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisWeek = function() {
+    TimePoint.prototype.thisWeek = function() {
         let dt = this.dateTime();
         
         let offset = 
@@ -185,7 +198,7 @@ let TimePoint = exports.TimePoint = function(timestamp) {
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisMonth = function() {
+    TimePoint.prototype.thisMonth = function() {
         let year = now.getFullYear();
         let month = now.getMonth();
 
@@ -202,7 +215,7 @@ let TimePoint = exports.TimePoint = function(timestamp) {
         return new TimeSpan(beg, end);
     };
 
-    this.prototype.thisYear = function() {
+    TimePoint.prototype.thisYear = function() {
         let year = now.getFullYear();
 
         let beg = Date.UTC(year, 0);
@@ -210,35 +223,47 @@ let TimePoint = exports.TimePoint = function(timestamp) {
 
         return new TimeSpan(beg, end);
     };
+};
 
-    TimePoint.now = function() {
-        return new TimePoint();
-    };
+TimePoint.now = function() {
+    return new TimePoint();
+};
 
-    TimePoint.utc = function(dateTime) {
-        if(!dateTime){
-            return new TimePoint(Date.now());
-        }
+TimePoint.utc = function(dateTime) {
+    if(!dateTime){
+        return new TimePoint(Date.now());
+    }
 
-        let {year, month, date, day, hour, minute, second, ms} = dateTime;
+    let {year, month, date, day, hour, minute, second, ms} = dateTime;
 
-        year = year || 0;
-        month = (!!month) ? month - 1 : 1;
-        date = date || 1;
-        hour = hour || 0;
-        minute = minute || 0;
-        second = second || 0;
-        ms = ms || 0;
+    year = year || 0;
+    month = (!!month) ? month - 1 : 1;
+    date = date || 1;
+    hour = hour || 0;
+    minute = minute || 0;
+    second = second || 0;
+    ms = ms || 0;
 
-        let value = Date.UTC(year, month, date, hour, minute, second, ms);
+    let value = Date.UTC(year, month, date, hour, minute, second, ms);
 
-        return new TimePoint(value);
-    };
+    return new TimePoint(value);
+};
 
-    TimePoint.parse = function(str) {
-        let value = Date.parse(str);
-        return new TimePoint(value);
-    };
+TimePoint.parse = function(str) {
+    let value = Date.parse(str);
+    return new TimePoint(value);
+};
+
+exports.duration = function(ms) {
+    return new Duration(ms);
+}
+
+exports.span = function(beginTimeStamp, endTimeStamp) {
+    return new TimeSpan(beginTimeStamp, endTimeStamp);
+};
+
+exports.between = function(beginTimePoint, endTimePoint) {
+    return new TimeSpan(beginTimePoint.value(), endTimePoint.value());
 };
 
 exports.now = function() {
@@ -259,8 +284,4 @@ exports.add = function(timePoint, duration) {
 
 exports.sub = function(timePoint, duration) {
     return timePoint.sub(duration);
-};
-
-exports.between = function(beginPoint, endPoint) {
-    return beginPoint.to(endPoint);
 };

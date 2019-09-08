@@ -163,6 +163,9 @@ console.log(`minutes: ${duration.accurateMinutes()}`)
 
 ## Release Note
 
+### 1.5.0
+* MOD: deprecated 'formidable', use 'multer' to parse multipart body data.
+
 ### 1.4.0
 * NEW: added a new module time which provides apis for TimePoint & TimeSpan.
 * DEL: removed extension apis of String, Array, Function.

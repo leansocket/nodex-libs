@@ -1,19 +1,13 @@
 
 'use strict';
 
-const buddy = require('co-body');
-const forms = require('formidable');
+const cobody = require('co-body');
+const multer = require('multer');
 const symbolUnparsed = Symbol.for('unparsedBody');
 
-module.exports = requestbody;
+let upload = null;
 
-/**
- *
- * @param {Object} options
- * @see https://github.com/dlau/koa-body
- * @api public
- */
-function requestbody(opts) {
+module.exports = function(opts) {
     opts = opts || {};
     opts.onError = 'onError' in opts ? opts.onError : false;
     opts.patchNode = 'patchNode' in opts ? opts.patchNode : false;
@@ -27,165 +21,119 @@ function requestbody(opts) {
     opts.jsonStrict = 'jsonStrict' in opts ? opts.jsonStrict : true;
     opts.formLimit = 'formLimit' in opts ? opts.formLimit : '56kb';
     opts.queryString = 'queryString' in opts ? opts.queryString : null;
-    opts.formidable = 'formidable' in opts ? opts.formidable : {};
+    opts.multer = 'multer' in opts ? opts.multer : {};
     opts.includeUnparsed = 'includeUnparsed' in opts ? opts.includeUnparsed : false
     opts.textLimit = 'textLimit' in opts ? opts.textLimit : '56kb';
     opts.parsedMethods = 'parsedMethods' in opts ? opts.parsedMethods : ['POST', 'PUT', 'PATCH'];
 
-    return function (ctx, next) {
-        let bodyPromise;
+    upload = multer({
+        limits: opts.multer.limits,
+        fileFilter: opts.multer.filter,
+        storage: multer.diskStorage({
+            destination: opts.multer.destination,
+            filename: opts.multer.filename
+        })
+    });
 
-        if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) >= 0) {
-            try {
-                if (opts.json && ctx.is('json')) {
-                    bodyPromise = buddy.json(ctx, {
-                        encoding: opts.encoding,
-                        limit: opts.jsonLimit,
-                        strict: opts.jsonStrict,
-                        returnRawBody: opts.includeUnparsed
-                    });
-                } else if (opts.urlencoded && ctx.is('urlencoded')) {
-                    bodyPromise = buddy.form(ctx, {
-                        encoding: opts.encoding,
-                        limit: opts.formLimit,
-                        queryString: opts.queryString,
-                        returnRawBody: opts.includeUnparsed
-                    });
-                } else if (opts.text && ctx.is('text')) {
-                    bodyPromise = buddy.text(ctx, {
-                        encoding: opts.encoding,
-                        limit: opts.textLimit,
-                        returnRawBody: opts.includeUnparsed
-                    });
-                } else if (opts.multipart && ctx.is('multipart')) {
-                    bodyPromise = formy(ctx, opts.formidable);
-                } else {
-                    /**
-                     * CQL
-                     * text-parsing fallback */
-                    bodyPromise = buddy.text(ctx, {
-                        encoding: opts.encoding,
-                        limit: opts.textLimit,
-                        returnRawBody: opts.includeUnparsed
-                    });
-                }
-            } catch (parsingError) {
-                if (typeof opts.onError === 'function') {
-                    opts.onError(parsingError, ctx);
-                } else {
-                    throw parsingError;
-                }
-            }
-        }
+    return function (ctx, next) {
+        let bodyPromise = getBodyPromise(ctx, opts);
 
         bodyPromise = bodyPromise || Promise.resolve({});
         
-        return bodyPromise.catch(function (parsingError) {
-            if (typeof opts.onError === 'function') {
-                opts.onError(parsingError, ctx);
-            } else {
-                throw parsingError;
+        return bodyPromise.catch(function (err) {
+            if (typeof opts.err === 'function') {
+                opts.onError(err, ctx);
+            } 
+            else {
+                throw err;
             }
             return next();
         }).then(function (body) {
-            if (opts.patchNode) {
-                if (isMultiPart(ctx, opts)) {
-                    ctx.req.body = body.fields;
-                    ctx.req.files = body.files;
-                } else if (opts.includeUnparsed) {
-                    ctx.req.body = body.parsed || {};
+
+            let patch = function(req, body){
+                if (opts.multipart && ctx.is('multipart')) {
+                    req.body = body.fields;
+                    req.files = body.files;
+                } 
+                else if (opts.includeUnparsed) {
+                    req.body = body.parsed || {};
                     if (!ctx.is('text')) {
-                        ctx.req.body[symbolUnparsed] = body.raw;
+                        req.body[symbolUnparsed] = body.raw;
                     }
-                } else {
-                    ctx.req.body = body;
+                } 
+                else {
+                    req.body = body;
                 }
             }
-            if (opts.patchKoa) {
-                if (isMultiPart(ctx, opts)) {
-                    ctx.request.body = body.fields;
-                    ctx.request.files = body.files;
-                } else if (opts.includeUnparsed) {
-                    ctx.request.body = body.parsed || {};
-                    if (!ctx.is('text')) {
-                        ctx.request.body[symbolUnparsed] = body.raw;
-                    }
-                } else {
-                    ctx.request.body = body;
-                }
+
+            if(opts.patchNode){
+                patch(ctx.req, body);
             }
+            if(opts.patchKoa) {
+                patch(ctx.request, body);
+            }
+
             return next();
         });
     };
 }
 
-/**
- * Check if multipart handling is enabled and that this is a multipart request
- *
- * @param  {Object} ctx
- * @param  {Object} opts
- * @return {Boolean} true if request is multipart and being treated as so
- * @api private
- */
-function isMultiPart(ctx, opts) {
-    return opts.multipart && ctx.is('multipart');
-}
-
-/**
- * Donable formidable
- *
- * @param  {Stream} ctx
- * @param  {Object} opts
- * @return {Promise}
- * @api private
- */
-function formy(ctx, opts) {
-    opts = opts || {};
-    if(typeof(opts) === 'function'){
-        opts = opts(ctx);
+let getBodyPromise = function(ctx, opts) {
+    if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) < 0) {
+        return null;
     }
 
-    return new Promise(function (resolve, reject) {
-        let fields = {};
-        let files = {};
-        let form = new forms.IncomingForm(opts);
-        form.on('end', function () {
-            return resolve({
-                fields: fields,
-                files: files
-            });
-        }).on('error', function (err) {
-            return reject(err);
-        }).on('field', function (field, value) {
-            if (fields[field]) {
-                if (Array.isArray(fields[field])) {
-                    fields[field].push(value);
-                } else {
-                    fields[field] = [fields[field], value];
-                }
-            } else {
-                fields[field] = value;
-            }
-        }).on('fileBegin', function(name, file){
-            if(opts.onFileBegin){
-                try {
-                    opts.onFileBegin(name, file);
-                }
-                catch(err) {
-                    form.emit('error', err);
-                }
-            }
-        }).on('file', function (field, file) {
-            if (files[field]) {
-                if (Array.isArray(files[field])) {
-                    files[field].push(file);
-                } else {
-                    files[field] = [files[field], file];
-                }
-            } else {
-                files[field] = file;
-            }
+    if (opts.json && ctx.is('json')) {
+        return cobody.json(ctx, {
+            encoding: opts.encoding,
+            limit: opts.jsonLimit,
+            strict: opts.jsonStrict,
+            returnRawBody: opts.includeUnparsed
         });
-        form.parse(ctx.req);
+    } 
+    else if (opts.urlencoded && ctx.is('urlencoded')) {
+        return cobody.form(ctx, {
+            encoding: opts.encoding,
+            limit: opts.formLimit,
+            queryString: opts.queryString,
+            returnRawBody: opts.includeUnparsed
+        });
+    } 
+    else if (opts.text && ctx.is('text')) {
+        return cobody.text(ctx, {
+            encoding: opts.encoding,
+            limit: opts.textLimit,
+            returnRawBody: opts.includeUnparsed
+        });
+    } 
+    else if (opts.multipart && ctx.is('multipart')) {
+        return createMultipartPromise(ctx, opts.multer);
+    } 
+    else {
+        return cobody.text(ctx, {
+            encoding: opts.encoding,
+            limit: opts.textLimit,
+            returnRawBody: opts.includeUnparsed
+        });
+    }
+}
+
+let createMultipartPromise = function(ctx, opts) {
+    let req = ctx.req;
+    let res = ctx.res;
+    req.params = ctx.params;
+
+    return new Promise(function(resolve, reject){
+        let middleware = upload.any();
+        
+        middleware(req, res, function(err){
+            if(err) {
+                return reject(err);
+            }
+            return resolve({
+                fields: req.body,
+                files: req.files
+            });
+        });
     });
 }
