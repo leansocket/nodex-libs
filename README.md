@@ -163,6 +163,10 @@ console.log(`minutes: ${duration.accurateMinutes()}`)
 
 ## Release Note
 
+### 1.5.6
+* NEW: added 'charset' property to db.config.
+* NEW: added support outputing 'log-level' for console.log/info/notice/warn/error.
+
 ### 1.5.0
 * MOD: deprecated 'formidable', use 'multer' to parse multipart body data.
 

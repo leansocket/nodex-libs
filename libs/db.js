@@ -4,11 +4,12 @@ let pool = null;
 
 exports.init = function(config) {
     pool = mysql.createPool({
-        host: config.host,
-        port: config.port,
-        user: config.user,
-        password: config.pswd,
-        database: config.db
+        host: config.host || '127.0.0.1',
+        port: config.port || 3306,
+        user: config.user || 'root',
+        password: config.pswd || '',
+        database: config.db,
+        charset: config.charset || undefined
     });
 };
 
@@ -111,13 +112,16 @@ exports.page = async function(sql, page, size) {
         throw Error.make('ERR_SQL_SYNTAX', 'the sql syntax is error.');
     }
 
-    if (sql.indexOf('limit') === -1 &&
-        sql.indexOf('LIMIT') === -1) {
+    let has_limit = 
+        sql.indexOf('limit') >= 0 ||
+        sql.indexOf('LIMIT') >= 0;
+
+    if (!has_limit) {
         if(page >= 0 && size > 0) {
             if(sql.endsWith(';')){
                 sql = sql.substr(0, sql.length - 1);
             }
-            sql = sql + ` limit ${(page - 1) * size}, ${size};`;
+            sql = `${sql} limit ${(page - 1) * size}, ${size};`;
         }
     }
 

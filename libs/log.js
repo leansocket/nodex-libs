@@ -1,7 +1,24 @@
 
-let chalk = require("chalk");
+const chalk = require('chalk');
 
 exports.init = function(scope) {
+	
+
+
+	let pad2 = function(val) {
+		return val < 10 ? `0${val}` : val;
+	};
+
+	let time = function() {
+		let t = new Date();
+	    let Y = t.getFullYear();
+	    let M = pad2(t.getMonth() + 1);
+	    let D = pad2(t.getDate());
+	    let h = pad2(t.getHours());
+	    let m = pad2(t.getMinutes());
+	    let s = pad2(t.getSeconds());
+	    return `${Y}/${M}/${D} ${h}:${m}:${s}`;
+	}
 
 	let tostr = function(message) {
         if(message === undefined){
@@ -17,33 +34,41 @@ exports.init = function(scope) {
         return message;
 	};
 
-	let tolog = function(message) {
-	    let t = new Date();
-	    let Y = t.getFullYear();
-	    let M = t.getMonth();
-	    let D = t.getDate();
-	    let h = t.getHours();
-	    let m = t.getMinutes();
-	    let s = t.getSeconds();
-	    let timestr = `${Y}/${M}/${D} ${h}:${m}:${s}`;
-	    let logstr = `${timestr} [${scope}] ${message}`;
+	let tolog = function(level, message) {	    
+	    let logstr = `${level}> ${time()} [${scope}] ${message}`;
 	    return logstr;
 	};
 
-	let themes = {
-		log: chalk.white,
-		info: chalk.green,
-		notice: chalk.blue,
-		warn: chalk.yellow.bold,
-		error: chalk.red.bold,
+	let configs = {
+		log: {
+			level: 'L',
+			style: chalk.white
+		},
+		info: {
+			level: 'I',
+			style: chalk.green
+		},
+		notice: {
+			level: 'N',
+			style: chalk.blue
+		},
+		warn: {
+			level: 'W',
+			style: chalk.yellow.bold
+		},
+		error: {
+			level: 'E',
+			style: chalk.red.bold
+		}
 	};
 
     let console_log = console.log;
 
-	for(let x in themes){
+	for(let x in configs){
+		let cfg = configs[x];
 		console[x] = function(message){
-            let str = tolog(tostr(message));
-            console_log(themes[x](str));
+            let str = tolog(cfg.level, tostr(message));
+            console_log(cfg.style(str));
 		};
 	}
 };
