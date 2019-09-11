@@ -163,6 +163,10 @@ console.log(`minutes: ${duration.accurateMinutes()}`)
 
 ## Release Note
 
+### 1.5.7
+* NEW: body module provide a new config options : options.multer.ignoreFiles.
+* NEW: added a new api: time.point to create a new TimePoint by timestamp.
+
 ### 1.5.6
 * NEW: added 'charset' property to db.config.
 * NEW: added support outputing 'log-level' for console.log/info/notice/warn/error.

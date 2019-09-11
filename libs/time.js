@@ -266,6 +266,10 @@ exports.between = function(beginTimePoint, endTimePoint) {
     return new TimeSpan(beginTimePoint.value(), endTimePoint.value());
 };
 
+exports.point = function(timestamp){
+    return new TimePoint(timestamp);
+}
+
 exports.now = function() {
     return TimePoint.now();
 };

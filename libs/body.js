@@ -124,7 +124,7 @@ let createMultipartPromise = function(ctx, opts) {
     req.params = ctx.params;
 
     return new Promise(function(resolve, reject){
-        let middleware = upload.any();
+        let middleware = opt.ignoreFiles ? upload.fields() : upload.any();
         
         middleware(req, res, function(err){
             if(err) {
