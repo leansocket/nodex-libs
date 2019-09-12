@@ -6,6 +6,10 @@ const MS_PER_DAY = exports.MS_PER_DAY = 86400000;
 const MS_PER_WEEK = exports.MS_PER_WEEK = 86400 * 7;
 
 let Duration = exports.Duration = function(duration) {
+    if(!(this instanceof Duration)){
+        return new Duration(duration);
+    }
+    
     duration = Math.abs(duration);
     
     Duration.prototype.value = function() {
@@ -70,6 +74,10 @@ let Duration = exports.Duration = function(duration) {
 };
 
 let TimeSpan = exports.TimeSpan = function(begin, end) {
+    if(!(this instanceof TimeSpan)){
+        return new TimeSpan(begin, end);
+    }
+
     let duration = new Duration(end - begin);
 
     TimeSpan.prototype.begin = function(){
@@ -101,6 +109,10 @@ let TimeSpan = exports.TimeSpan = function(begin, end) {
 };
 
 let TimePoint = exports.TimePoint = function(timestamp) {
+    if(!(this instanceof TimePoint)){
+        return new TimePoint(timestamp);
+    }
+    
     timestamp = timestamp || Date.now();
     let now = new Date(timestamp);
 
