@@ -1,7 +1,4 @@
 
-let ext = require('./ext');
-ext.array();
-
 let testSchedule = function(schedule, now) {
 
     let testScheduleComponent = function(c, n) {
@@ -13,7 +10,7 @@ let testSchedule = function(schedule, now) {
             else if(t === 'function' && !c(n)){
                 return false;
             }
-            else if(Array.isArray(c) && !c.contains(n)){
+            else if(Array.isArray(c) && !c.includes(n)){
                 return false;
             }
         }
