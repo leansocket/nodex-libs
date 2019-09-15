@@ -139,6 +139,7 @@ let TimePoint = exports.TimePoint = function(timestamp) {
             if(val < 10){
                 return `0${val}`;
             }
+            return val;
         };
 
         let dt = this.dateTime();
