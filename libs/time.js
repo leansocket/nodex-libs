@@ -262,7 +262,10 @@ TimePoint.utc = function(dateTime) {
     return new TimePoint(value);
 };
 
-TimePoint.parse = function(str) {
+TimePoint.parse = function(str, defaultTimeZone = 'GMT +8') {
+    if(str.indexOf('GMT') < 0){
+        str = `${str} ${defaultTimeZone}`;
+    }
     let value = Date.parse(str);
     return new TimePoint(value);
 };
@@ -291,8 +294,8 @@ exports.utc = function() {
     return TimePoint.utc.apply(this, arguments);
 };
 
-exports.parse = function(str) {
-    return TimePoint.parse(str);
+exports.parse = function(str, defaultTimeZone = 'GMT +8') {
+    return TimePoint.parse(str, defaultTimeZone);
 };
 
 exports.add = function(timePoint, duration) {
