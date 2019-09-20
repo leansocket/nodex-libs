@@ -14,7 +14,7 @@ module.exports = {
         };
 
         Math.randomRangeInt = function(min, max){
-            return Math.floor(exports.random_range(min, max));
+            return Math.floor(Math.randomRange(min, max));
         };
 
         Math.clamp = function (x, a, b) {
@@ -79,17 +79,17 @@ module.exports = {
             if(array.length === 0){
                 return 0;
             }
-            return Math.sum(array) / array.length;
+            return Math.sum(...array) / array.length;
         };
 
         Math.variance = function(...array){
-            let avg = Math.average(array);
+            let avg = Math.average(...array);
             let list = [];
             for(let i = 0; i < array.length; i++){
                 let u = array[i] - avg;
                 list.push(u * u);
             }
-            return Math.average(list);
+            return Math.average(...list);
         };
     },
 
