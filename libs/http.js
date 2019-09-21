@@ -5,6 +5,8 @@ let http2 = require('http2');
 let liburl = require('url');
 let query = require('querystring');
 
+let fs = require('fs');
+
 let ext = require('./ext');
 let vfs = require('./vfs');
 let util = require('./util');
@@ -386,6 +388,52 @@ exports.send = function(ctx, arg1, arg2) {
     let message = util.makeXdata(arg1, arg2);
     //console.log(`http: send ${JSON.stringify(message)}`);
     ctx.response.body = message;
+};
+
+/*
+    options : {
+        brotli: true,
+        gzip: true,
+        maxAge: 600  // s
+        immutable: true,
+    }
+*/
+exports.sendFile = async function(ctx, filepath, options) {
+    let fileext = '';
+    if (options.brotli !== false && ctx.acceptsEncodings('br', 'identity') === 'br' && (await fs.exists(filepath + '.br'))) {        
+        ctx.set('Content-Encoding', 'br');
+        ctx.res.removeHeader('Content-Length');
+        filepath = `${filepath}.br`;
+        fileext = '.br';
+    } 
+    else if (options.gzip !== false && ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && (await fs.exists(filepath + '.gz'))) {       
+        ctx.set('Content-Encoding', 'gzip');
+        ctx.res.removeHeader('Content-Length');
+        filepath = `${filepath}.gz`;
+        fileext = '.gz';
+    }
+
+    let stats = await fs.stats(filepath);
+    
+    ctx.set('Content-Length', stats.size);
+    ctx.set('Last-Modified', stats.mtime.toUTCString());
+
+    if(options.maxAge > 0) {
+        const directives = [`max-age=${maxAge|0}`];
+        if (options.immutable) {
+            directives.push('immutable');
+        }
+        ctx.set('Cache-Control', directives.join(','));
+    }
+
+    if (!ctx.type) {
+         let type = function(file, ext) {
+            return ext !== '' ? path.extname(path.basename(file, ext)) : path.extname(file)
+        }
+        ctx.type = type(filepath, fileext);
+    }
+
+    ctx.body = fs.createReadStream(filepath);
 };
 
 exports.error = function(ctx, err, ret) {
