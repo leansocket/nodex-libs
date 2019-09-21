@@ -6,6 +6,7 @@ let liburl = require('url');
 let query = require('querystring');
 
 let fs = require('fs');
+let path = require('path');
 
 let ext = require('./ext');
 let vfs = require('./vfs');
@@ -400,26 +401,26 @@ exports.send = function(ctx, arg1, arg2) {
 */
 exports.sendFile = async function(ctx, filepath, options) {
     let fileext = '';
-    if (options.brotli !== false && ctx.acceptsEncodings('br', 'identity') === 'br' && (await fs.exists(filepath + '.br'))) {        
+    if (options.brotli !== false && ctx.acceptsEncodings('br', 'identity') === 'br' && (fs.existsSync(filepath + '.br'))) {        
         ctx.set('Content-Encoding', 'br');
         ctx.res.removeHeader('Content-Length');
         filepath = `${filepath}.br`;
         fileext = '.br';
     } 
-    else if (options.gzip !== false && ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && (await fs.exists(filepath + '.gz'))) {       
+    else if (options.gzip !== false && ctx.acceptsEncodings('gzip', 'identity') === 'gzip' && (fs.existsSync(filepath + '.gz'))) {       
         ctx.set('Content-Encoding', 'gzip');
         ctx.res.removeHeader('Content-Length');
         filepath = `${filepath}.gz`;
         fileext = '.gz';
     }
 
-    let stats = await fs.stats(filepath);
+    let stats = fs.statSync(filepath);
     
     ctx.set('Content-Length', stats.size);
     ctx.set('Last-Modified', stats.mtime.toUTCString());
 
     if(options.maxAge > 0) {
-        const directives = [`max-age=${maxAge|0}`];
+        const directives = [`max-age=${options.maxAge|0}`];
         if (options.immutable) {
             directives.push('immutable');
         }
