@@ -163,6 +163,9 @@ console.log(`minutes: ${duration.accurateMinutes()}`)
 
 ## Release Note
 
+### 1.5.13
+* NEW: added a new api: http.sendFile to send a server-end file to client.
+
 ### 1.5.7
 * NEW: body module provide a new config options : options.multer.ignoreFiles.
 * NEW: added a new api: time.point to create a new TimePoint by timestamp.
