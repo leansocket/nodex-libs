@@ -14,7 +14,7 @@ exports.has = function(obj, field){
 exports.has_one = function(obj, fields){
     for(let i = 0; i < fields.length; i++){
         let f = fields[i];
-        if(exports.has(f)){
+        if(exports.has(obj, f)){
             return true;
         }
     }
@@ -24,7 +24,7 @@ exports.has_one = function(obj, fields){
 exports.has_all = function(obj, fields){
     for(let i = 0; i < fields.length; i++){
         let f = fields[i];
-        if(!exports.has(f)){
+        if(!exports.has(obj, f)){
             return false;
         }
     }
@@ -34,7 +34,7 @@ exports.has_all = function(obj, fields){
 exports.must_have_one = function(obj, fields){
     for(let i = 0; i < fields.length; i++){
         let f = fields[i];
-        if(exports.has(f)){
+        if(exports.has(obj, f)){
             return;
         }
     }
@@ -44,7 +44,7 @@ exports.must_have_one = function(obj, fields){
 exports.must_have_all = function(obj, fields){
     for(let i = 0; i < fields.length; i++){
         let f = fields[i];
-        if(!exports.has(f)){
+        if(!exports.has(obj, f)){
             throw Error.make("ERR_FIELED_REQUIRED", `Required field '${f}' is not defined in the object.`);
         }
     }

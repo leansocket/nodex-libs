@@ -12,11 +12,11 @@ test('Test ext modules', () => {
 
     const randomRangeValue = Math.randomRange(max, min);
 
-    expect(randomRangeValue > min && randomRangeValue <= max).toBeTruthy();
+    expect(randomRangeValue >= min && randomRangeValue < max).toBeTruthy();
 
     const randomRangeIntValue = Math.randomRangeInt(max, min);
 
-    expect(randomRangeIntValue > min && randomRangeIntValue <= max && randomRangeIntValue % 1 === 0).toBeTruthy();
+    expect(randomRangeIntValue >= min && randomRangeIntValue < max && randomRangeIntValue % 1 === 0).toBeTruthy();
 
     const a = 3;
     const b = 5;
