@@ -161,6 +161,22 @@ let duration = new time.Duration(time.MS_PER_DAY);
 console.log(`minutes: ${duration.accurateMinutes()}`)
 ```
 
+Spawn
+```js
+const libs = require('nodex-libs');
+const spawn = libs.spawn;
+
+let p = spawn.process();
+p.on('out', (code, out, err) => {
+    console.log(`${code} ${out} ${err}`);
+});
+
+for(let i = 0; i < 10; i++) {
+    p.post(`echo command '${i}'`);
+}
+p.post(`npm --version`);
+```
+
 ## Release Note
 
 ### 1.6.0
