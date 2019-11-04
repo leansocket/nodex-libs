@@ -163,6 +163,11 @@ console.log(`minutes: ${duration.accurateMinutes()}`)
 
 ## Release Note
 
+### 1.6.0
+* NEW: added a new module 'spawn'. 
+    + it can be used to execute chile-process commands.
+    + it depends on cross-spawn and implements an asynchorous command queue.  
+
 ### 1.5.13
 * NEW: added a new api: http.sendFile to send a server-end file to client.
 
