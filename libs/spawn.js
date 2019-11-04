@@ -12,12 +12,19 @@ class SpawnedProcess extends events.EventEmitter {
         this._processor = null;
     }
 
-    post(command, options) {
+    async post(command, options, callback) {
         if (typeof options === "string") {
             options = options.split(" ");
         }
+        else if(!Array.isArray(options)) {
+            options = [];
+        }
+
+        if(typeof callback !== 'function') {
+            callback = undefined;
+        }
     
-        this._taskQueue.push({command, options});
+        this._taskQueue.push({command, options, callback});
         
         this._run();
     
@@ -40,6 +47,10 @@ class SpawnedProcess extends events.EventEmitter {
     
             let stdoutStr = stdout.length > 0 ? Buffer.concat(stdout).toString('utf-8') : '';
             let stderrStr = stderr.length > 0 ? Buffer.concat(stderr).toString('utf-8') : '';
+            if(task.callback) {
+                task.callback(exitCode, stdoutStr, stderrStr);
+            }
+
             self.emit('out', exitCode, stdoutStr, stderrStr);
     
             process.nextTick(self._run.bind(self));
