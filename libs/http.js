@@ -445,12 +445,17 @@ exports.error = function(ctx, err, ret) {
     return false;
 };
 
-exports.handle = function(func) {
+exports.handler = function(func) {
     if(typeof(func) !== 'function'){
         throw Error.make(`ERR_INVALID_ARGS`, `the type of 'func' is invalid.`);
     }
     return async function(ctx) {
-        let ret = await func(ctx.request.body);
+        let arg = {
+            ... (ctx.params || {}),
+            ... (ctx.request.query || {}),
+            ... (ctx.request.body || {}),
+        }
+        let ret = await func(arg);
         exports.send(ctx, ret);
     };
 };

@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "1.6.5",
+  "version": "1.6.7",
   "description": "a nodejs library",
   "main": "index-libs",
   "dependencies": {
