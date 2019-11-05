@@ -29,19 +29,19 @@ exports.decode_aes_256_cbc = function(key, content){
 };
 
 exports.encode_base64 = function (content) {
-    return new Buffer(content).toString('base64');
+    return Buffer.from(content).toString('base64');
 };
 
 exports.decode_base64 = function (content) {
-    return new Buffer(content, 'base64').toString();
+    return Buffer.from(content, 'base64').toString();
 };
 
 exports.encode_hex64 = function(content){
-    return new Buffer(content, 'hex').toString('base64');
+    return Buffer.from(content, 'hex').toString('base64');
 };
 
 exports.decode_hex64 = function(content){
-    return new Buffer(content, 'base64').toString('hex');
+    return Buffer.from(content, 'base64').toString('hex');
 };
 
 exports.rs = function(len, characters){
