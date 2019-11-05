@@ -2,7 +2,7 @@ let spawn = require('cross-spawn');
 let events = require('events');
 
 class SpawnedProcess extends events.EventEmitter {
-    constructor(cwd, env) {
+    constructor({cwd, env} = {}) {
         super();
 
         this.cwd = cwd || process.cwd();
