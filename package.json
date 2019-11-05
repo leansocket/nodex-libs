@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "a nodejs library",
   "main": "index-libs",
   "dependencies": {
@@ -19,7 +19,8 @@
     "jest": "^24.9.0"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test-one": "cd ./test && node"
   },
   "keywords": [
     "node",

@@ -13,15 +13,34 @@ class SpawnedProcess extends events.EventEmitter {
     }
 
     async post(command, options, callback) {
-        if (typeof options === "string") {
-            options = options.split(" ");
-        }
-        else if(!Array.isArray(options)) {
-            options = [];
+        if(!command){
+            return;
         }
 
-        if(typeof callback !== 'function') {
-            callback = undefined;
+        options = [];
+        callback = undefined;
+
+        if(arguments.length === 2) {
+            if(typeof arguments[1] === 'function') {
+                callback = arguments[1];
+            }
+            else if(typeof arguments[1] === 'string') {
+                options = arguments[1].split(" ");
+            }
+            else if(Array.isArray(arguments[1])) {
+                options = arguments[1];
+            }
+        }
+        else if(arguments.length === 3) {
+            if(Array.isArray(arguments[1])) {
+                options = arguments[1];
+            }
+            else if (typeof arguments[1] === "string") {
+                options = arguments[1].split(" ");
+            }
+            if(typeof arguments[2] === 'function') {
+                callback = arguments[2];
+            }
         }
     
         this._taskQueue.push({command, options, callback});
