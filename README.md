@@ -172,12 +172,16 @@ p.on('out', (code, out, err) => {
 });
 
 for(let i = 0; i < 10; i++) {
-    p.post(`echo command '${i}'`);
+    p.post(`echo`, [`command`, `${i}`]);
 }
-p.post(`npm --version`);
+p.post(`npm`, [`--version`]);
 ```
 
 ## Release Note
+
+### 1.6.8
+* MOD: http.handle -> http.handler.
+* NEW: added a new module 'mysql' and 'db' is deprecated now.
 
 ### 1.6.0
 * NEW: added a new module 'spawn'. 
