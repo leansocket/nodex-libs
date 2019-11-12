@@ -17,80 +17,49 @@ exports.checkError = function(err, ret) {
 * make_xdata(null, ret);
 * */
 exports.makeXdata = function(arg0, arg1) {
-    if(arg0 === undefined && arg1 === undefined){
-        let xdata = {};
-        xdata.result = 'ERR_INVALID_XDATA';
-        xdata.error = 'x-data is invalid.';
-        return xdata;
-    }
     if(arg0 instanceof Error){
         let xdata = {};
-        if(arg0.code === undefined){
-            xdata.result = 'ERR_ERROR';
+        if(!arg0.code && !arg0.name){
+            xdata.result = 'ERR_UNKNOWN';
         }
         else {
-            let codestr = arg0.code + '';
-            if (codestr.startsWith('ERR_')) {
-                xdata.result = codestr;
+            let result = `${arg0.code || arg0.name}`.toUpperCase();
+            if (result.startsWith('ERR_')) {
+                xdata.result = result;
             }
-            else if (codestr.startsWith('ER_')) {
-                xdata.result = 'ERR_' + codestr.substr(3);
+            else if (result.startsWith('ER_')) {
+                xdata.result = 'ERR_' + result.substr(3);
             }
-            else if (codestr.startsWith('ERROR_')) {
-                xdata.result = 'ERR_' + codestr.substr(6);
+            else if (result.startsWith('ERROR_')) {
+                xdata.result = 'ERR_' + result.substr(6);
             }
             else {
-                xdata.result = 'ERR_' + codestr;
+                xdata.result = 'ERR_' + result;
             }
         }
-        xdata.error = arg0.message;
+        xdata.data = arg0.message;
         return xdata;
     }
-    let t0 = typeof(arg0);
-    let t1 = typeof(arg1);
-    if(t0 === 'number' || t0 === 'string' || t0 === 'boolean'){
+
+    let data = undefined;
+    if(arg0 !== undefined && arg0 !== null) {
+        data = arg0;
+    }
+    else if(arg1 !== undefined && arg1 !== null) {
+        data = arg1;
+    }
+    if(data !== undefined) {
         let xdata = {};
         xdata.result = 'ok';
-        xdata.error = '';
-        if (arg0 !== 'ok') {
-            xdata.data = arg0;
-        }
+        xdata.data = data;
         return xdata;
-    }
-    else if(t0 === 'object'){
-        if(arg0 !== null){
-            let xdata = arg0;
-            if (arg0 instanceof Array) {
-                xdata = { data: arg0 };
-            }
-            if(xdata.result === undefined){
-                xdata.result = 'ok';
-            }
-            return xdata;
-        }
-        else if (t1 === 'string' || t1 === 'number' || t1 === 'boolean'){
-            let xdata = {};
-            xdata.result = 'ok';
-            xdata.data = arg1;
-            return xdata;
-        }
-        else if(t1 === 'object' && arg1 !== null){
-            let xdata = arg1;
-            if (arg1 instanceof Array) {
-                xdata = { data: arg1 };
-            }
-            if(xdata.result === undefined){
-                xdata.result = 'ok';
-            }
-            return xdata;
-        }
     }
 
     // fallback
     {
         let xdata = {};
         xdata.result = 'ERR_INVALID_XDATA';
-        xdata.error = 'x-data is invalid.';
+        xdata.data = 'x-data is invalid.';
         return xdata;
     }
 };

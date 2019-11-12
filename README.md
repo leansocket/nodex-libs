@@ -179,6 +179,12 @@ p.post(`npm`, [`--version`]);
 
 ## Release Note
 
+### 1.7.0
+* MOD: Error.make(name, message), set error.name.
+* MOD: util.makeXdata always returns data field.
+* MOD: http.send always return data field.
+* ENH: console.log/info/notice/warn/error support multiple arguments.
+
 ### 1.6.8
 * MOD: http.handle -> http.handler.
 * NEW: added a new module 'mysql' and 'db' is deprecated now.

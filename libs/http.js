@@ -236,10 +236,10 @@ exports.call = async function(args, data) {
         throw Error.make(`ERR_HTTP_RPC`, `invoke http rpc failed.`);
     }
     let content = ret.content;
-    if(content.result !== 'ok'){
-        throw Error.make(content.result, content.error);
+    if(content.result !== 'ok') {
+        throw Error.make(content.result, content.data);
     }
-    return content;
+    return content.data;
 };
 
 exports.rpc = function(base, rps) {
@@ -447,7 +447,7 @@ exports.error = function(ctx, err, ret) {
 
 exports.handler = function(func) {
     if(typeof(func) !== 'function'){
-        throw Error.make(`ERR_INVALID_ARGS`, `the type of 'func' is invalid.`);
+        throw Error.make(`ERR_INVALID_ARGS`, `the type of 'func' is not a 'async function'.`);
     }
     return async function(ctx) {
         let arg = {

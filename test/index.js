@@ -3,6 +3,7 @@ let libs = require('../index');
 // scoped & colored logs
 {
     libs.log.init('nodex-libs-test');
+    console.log('multiple arguments', 1, 2, true, {result: 'ok'});
     console.log('this is console.log');
     console.info('this is console.info');
     console.notice('this is console.notice');

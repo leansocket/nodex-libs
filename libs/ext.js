@@ -1,9 +1,9 @@
 
 module.exports = {
     error: function(){
-        Error.make = function(code, message){
+        Error.make = function(name, message){
             let err = new Error(message);
-            err.code = code;
+            err.name = name;
             return err;
         };
     },

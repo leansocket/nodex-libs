@@ -2,14 +2,15 @@ let mysql = require("mysql");
 
 let pool = null;
 
-exports.init = function(config) {
+exports.init = function(args) {
+    args = args || {};
     pool = mysql.createPool({
-        host: config.host || '127.0.0.1',
-        port: config.port || 3306,
-        user: config.user || 'root',
-        password: config.pswd || '',
-        database: config.db,
-        charset: config.charset || undefined
+        host: args.host || '127.0.0.1',
+        port: args.port || 3306,
+        user: args.user || 'root',
+        password: args.pswd || '',
+        database: args.db || 'mysql',
+        charset: args.charset || undefined
     });
 };
 

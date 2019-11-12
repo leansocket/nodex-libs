@@ -3,8 +3,6 @@ const chalk = require('chalk');
 
 exports.init = function(scope) {
 	
-
-
 	let pad2 = function(val) {
 		return val < 10 ? `0${val}` : val;
 	};
@@ -34,8 +32,11 @@ exports.init = function(scope) {
         return message;
 	};
 
-	let tolog = function(level, message) {	    
-	    let logstr = `${level}> ${time()} [${scope}] ${message}`;
+	let tolog = function(level, ...message) {	    
+		let logstr = `${level}> ${time()} [${scope}]`;
+		message.forEach(msg => {
+			logstr += ` ${tostr(msg)}`;
+		});
 	    return logstr;
 	};
 
@@ -66,8 +67,8 @@ exports.init = function(scope) {
 
 	for(let x in configs){
 		let cfg = configs[x];
-		console[x] = function(message){
-            let str = tolog(cfg.level, tostr(message));
+		console[x] = function(){
+            let str = tolog(cfg.level, ...arguments);
             console_log(cfg.style(str));
 		};
 	}
