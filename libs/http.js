@@ -77,8 +77,16 @@ exports.request = async function(options, data) {
 
     data = data || {};
 
-    let content_str = JSON.stringify(data);
-    let content_len = Buffer.byteLength(content_str, "utf8");
+    let content_seq = '';
+    let content_len = 0;
+    if(typeof(data) === 'object'){
+        content_seq = JSON.stringify(data);
+        content_len = Buffer.byteLength(content_seq, "utf8");
+    }
+    else if(typeof(data) === 'string' || Buffer.isBuffer(data)) {
+        content_seq = data;
+        content_len = Buffer.byteLength(content_seq);
+    }
 
     if(options.method === 'GET') {
         options.path = exports.combineUrlAndParams(options.path, data);
@@ -152,7 +160,7 @@ exports.request = async function(options, data) {
         });
     
         if(options.method === 'POST') {
-            req.write(content_str);
+            req.write(content_seq);
         }
         
         req.end();
