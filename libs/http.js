@@ -42,192 +42,145 @@ exports.combineUrlAndParams = function(url, data) {
     return ret;
 };
 
-let onRes = async function(res, callback) {
-    let body = [];
+exports.getRequestOptions = function(optionsOrUrl) {
+    let options = undefined;
 
-    res.on("data", (data) => {
-        body.push(data);
-    });
-
-    res.on("end", () => {
-        try{
-            let contentType = res.headers['content-type'].toLowerCase();
-            let type = '';
-            let charset = 'utf8';
-            if(contentType.indexOf('text') >= 0){
-                type = 'text';
-            }
-            else if(contentType.indexOf('json') >= 0){
-                type = 'json';
-            }
-
-            let content = Buffer.concat(body);
-            if(type === 'text'){
-                content = content.toString(charset);
-            }
-            else if(type === 'json'){
-                content = content.toString(charset);
-                content = JSON.parse(content);
-            }
-
-            let data = {
-                status: res.statusCode,
-                headers: res.headers,
-                content: content
-            };
-            callback(null, data);
-        }
-        catch(err){
-            return callback(err, null);
-        }
-    });
-};
-
-/**
- args : {
-    host: '',
-    port: 80,
-    path: '/do_sth',
-    safe: true,
-    json: true
- }
- args : string
- * */
-let doGet = function(args, data, callback) {
-    let options = null;
-    let safe = false;
-    if(typeof(args) === 'object' && args !== null){
+    if(typeof(optionsOrUrl) === 'object' && optionsOrUrl !== null){
         options = {
-            hostname: args.host,
-            port: args.port || 80,
-            path: exports.combineUrlAndParams(args.path, data),
-            method: 'GET',
-            headers: args.headers || undefined
+            ... optionsOrUrl
         };
-        safe = args.safe === true;
     }
-    else if(typeof(args) === 'string' && args.length > 0) {
-        options = exports.combineUrlAndParams(args, data);
-        safe = exports.isHttps(args);
-    }
-    else {
-        let err = Error.make('ERR_INVALID_ARGS', 'the args of http.doGet is invalid.');
-        console.log(`http: ${err.message}`);
-        return callback(err, null);
-    }
-
-    if(typeof(data) === 'function'){
-        callback = data;
-    }
-
-    let proto = safe ? https : http;
-
-    let req = proto.request(options, (res)=>{
-        return onRes(res, callback);
-    });
-
-    req.on('error', function (err) {
-        console.log(`http: ${err.message}`);
-        return callback(err, null);
-    });
-
-    req.end();
-};
-
-/**
- args : {
-    host: '',
-    port: 80,
-    path: '/do_sth',
-    safe: true,
-    json: true
- }
- args : string
- * */
-let doPost = function(args, data, callback) {
-    let options = null;
-    let safe = false;
-    let content_str = JSON.stringify(data);
-    let content_len = Buffer.byteLength(content_str, "utf8");
-
-    if(typeof(args) === 'object' && args !== null){
-        options = {
-            hostname: args.host,
-            port: args.port || 80,
-            path: args.path,
-            method: 'POST',
-            headers: args.headers || undefined
-        };
-        safe = args.safe === true;
-    }
-    else if(typeof(args) === 'string' && args.length > 0) {
-        let urlinfo = liburl.parse(args);
+    else if(typeof(optionsOrUrl) === 'string' && optionsOrUrl.length > 0) {
+        let urlinfo = liburl.parse(optionsOrUrl);
         options = {
             hostname: urlinfo.hostname,
             port: urlinfo.port,
             path: urlinfo.path,
-            method: 'POST'
+            safe: exports.isHttps(optionsOrUrl),
         };
-        safe = exports.isHttps(args);
     }
-    else {
-        let err = Error.make('ERR_INVALID_ARGS', 'the args of http.doPost is invalid.');
-        console.log(`http: ${err.message}`);
-        return callback(err, null);
-    }
+    
+    return options;
+};
 
-    if(typeof(options.headers) === 'object'){
+/**
+ * startup a http request.
+ * @param options: {...http.requestOptions, safe: boolean}
+*/
+exports.request = async function(options, data) {
+    options = options || {};
+    options.hostname = options.hostname || undefined;
+    options.port = options.port || undefined;
+    options.socketPath = options.socketPath || undefined;
+    options.headers = options.headers || {};
+    options.safe = options.safe || false;
+
+    data = data || {};
+
+    let content_str = JSON.stringify(data);
+    let content_len = Buffer.byteLength(content_str, "utf8");
+
+    if(options.method === 'GET') {
+        options.path = exports.combineUrlAndParams(options.path, data);
+    }
+    else if(options.method === 'POST') {
         options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
         options.headers['Content-Length'] = content_len;
     }
-    else {
-        options.headers = {
-            'Content-Type': 'application/json',
-            'Content-Length': content_len,
-        };
-    }
 
-    if(typeof(data) === 'function'){
-        callback = data;
-    }
+    let onRes = async function(res) {
+        return await new Promise(function(resolve, reject) {
+            let body = [];
 
-    let proto = safe ? https : http;
+            res.on('error', (err) => {
+                return reject(err);
+            });
+    
+            res.on("data", (data) => {
+                body.push(data);
+            });
+        
+            res.on("end", () => {
+                try{
+                    let contentType = res.headers['content-type'].toLowerCase();
+                    let type = '';
+                    let charset = 'utf8';
+                    if(contentType.indexOf('text') >= 0){
+                        type = 'text';
+                    }
+                    else if(contentType.indexOf('json') >= 0){
+                        type = 'json';
+                    }
+        
+                    let content = Buffer.concat(body);
+                    if(type === 'text'){
+                        content = content.toString(charset);
+                    }
+                    else if(type === 'json'){
+                        content = content.toString(charset);
+                        content = JSON.parse(content);
+                    }
 
-    let req = proto.request(options, (res)=>{
-        onRes(res, callback);
+                    return resolve({
+                        status: res.statusCode,
+                        headers: res.headers,
+                        content: content
+                    });
+                }
+                catch(err){
+                    return reject(err);
+                }
+            });
+        });
+    };
+
+    return await new Promise(function(resolve, reject) {
+        let proto = options.safe ? https : http;
+
+        let req = proto.request(options, (res) => {
+            onRes(res)
+                .catch((err) => {
+                    return reject(err);
+                })
+                .then((ret) => {
+                    return resolve(ret);
+                });
+        });
+
+        req.on('error', function (err) {
+            return reject(err);
+        });
+    
+        if(options.method === 'POST') {
+            req.write(content_str);
+        }
+        
+        req.end();
     });
-
-    req.on('error', function (e) {
-        console.log(`http: ${e.message}`);
-        callback(e, null);
-    });
-
-    req.write(content_str);
-    req.end();
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
 exports.get = async function(args, data) {
-    return await new Promise((resolve, reject)=>{
-        doGet(args, data, (error, content)=>{
-            if(error){
-                return reject(error);
-            }
-            return resolve(content);
-        });
-    });
+    let options = exports.getRequestOptions(args);
+    if(!options) {
+        throw Error.make('ERR_INVALID_ARGS', 'the args of http.get is invalid.');
+    }
+
+    options.method = 'GET';
+
+    return await exports.request(options, data);
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.post = async function(args, data) {
-    return await new Promise((resolve, reject)=>{
-        doPost(args, data, (error, content)=>{
-            if(error){
-                return reject(error);
-            }
-            return resolve(content);
-        });
-    });
+exports.post = async function(opts, data) {
+    let options = exports.getRequestOptions(args);
+    if(!options) {
+        throw Error.make('ERR_INVALID_ARGS', 'the args of http.post is invalid.');
+    }
+
+    options.method = 'POST';
+
+    return await exports.request(options, data);
 };
 
 exports.call = async function(args, data) {

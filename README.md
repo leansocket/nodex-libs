@@ -179,6 +179,9 @@ p.post(`npm`, [`--version`]);
 
 ## Release Note
 
+### 1.7.2
+* NEW: http.request.
+
 ### 1.7.0
 * MOD: Error.make(name, message), set error.name.
 * MOD: util.makeXdata always returns data field.
