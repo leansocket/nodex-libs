@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "1.7.5",
+  "version": "1.7.7",
   "description": "a nodejs library",
   "main": "index-libs",
   "dependencies": {
@@ -8,6 +8,7 @@
     "co-body": "^6.0.0",
     "cross-spawn": "^7.0.1",
     "escape-html": "^1.0.3",
+    "fs-extra": "^8.1.0",
     "koa": "^2.7.0",
     "koa-router": "^7.4.0",
     "koa2-cors": "^2.0.6",

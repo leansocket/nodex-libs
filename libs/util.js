@@ -1,4 +1,8 @@
 
+exports.absolutePath = function(p) {
+	return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+}
+
 exports.checkError = function(err, ret) {
     if(err){
         return true;

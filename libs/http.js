@@ -9,7 +9,6 @@ let fs = require('fs');
 let path = require('path');
 
 let ext = require('./ext');
-let vfs = require('./vfs');
 let util = require('./util');
 
 ext.error();
@@ -288,8 +287,8 @@ exports.webapp = function(args) {
                 });
             }
 
-            let cert = fs.readFileSync(vfs.absolutePath(args.https_cert));
-            let key = fs.readFileSync(vfs.absolutePath(args.https_key));
+            let cert = fs.readFileSync(util.absolutePath(args.https_cert));
+            let key = fs.readFileSync(util.absolutePath(args.https_key));
             let options = {cert: cert, key: key};
 
             if(args.http2 === true) {
