@@ -1,21 +1,21 @@
 
-let ext = require('./libs/ext');
+const ext = require('./ext');
 for(let k in ext){
     ext[k]();
 }
 
-let load = function(name){
+const load = function(name){
     let m = null;
     return function(){
         if(m !== null && m !== undefined){
             return m;
         }
-        m = require(`./libs/${name}`);
+        m = require(`./${name}`);
         return m;
     };
 };
 
-let modules = [
+const modules = [
     'log', 'fmt', 'iters', 'time', 'schedule', 'spawn', 'flakes',
     'http', 'smtp', 
     'db', 'mysql',
