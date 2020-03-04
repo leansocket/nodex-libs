@@ -1,21 +1,21 @@
 
-let crypto = require("./crypto");
+import * as crypto from "./crypto";
 
-exports.Token = function(secret, timeout){
-    if(typeof(secret) !== 'string' || secret === ''){
+exports.Token = function (secret, timeout) {
+    if (typeof (secret) !== 'string' || secret === '') {
         secret = '^dU~sTmYV$DjC&b*';
     }
-    if(typeof(timeout) !== 'number'){
+    if (typeof (timeout) !== 'number') {
         timeout = 0;
     }
 
-    this.sign = function(data){
+    this.sign = function (data) {
         let str = JSON.stringify(data);
         let sgn = crypto.md5(secret + str);
         return sgn;
     };
 
-    this.make = function(data) {
+    this.make = function (data) {
         let pack = [
             data,
             timeout > 0 ? Math.floor(Date.now() / 1000) : 0
@@ -28,27 +28,26 @@ exports.Token = function(secret, timeout){
         return crypto.encode_hex64(str);
     };
 
-    this.check = function(token){
+    this.check = function (token) {
         let pack = null;
-        try{
+        try {
             let str = crypto.decode_hex64(token);
             str = crypto.decode_aes_256_cbc(secret, str);
             pack = JSON.parse(str);
         }
-        catch(e){
+        catch (e) {
             console.log(e.message);
         }
-        if(!pack || !Array.isArray(pack) || pack.length !== 3 ||
+        if (!pack || !Array.isArray(pack) || pack.length !== 3 ||
             pack[0] === undefined ||
             pack[1] === undefined ||
-            pack[2] === undefined)
-        {
+            pack[2] === undefined) {
             return undefined;
         }
 
         let sign = pack[2];
         pack.pop();
-        if(sign !== this.sign(pack).substr(12, 8)){
+        if (sign !== this.sign(pack).substr(12, 8)) {
             return undefined;
         }
 
@@ -57,25 +56,25 @@ exports.Token = function(secret, timeout){
             time: pack[1] * 1000,
             life: timeout * 1000
         };
-        if(info.time > 0 && info.life > 0 && info.time + info.life < Date.now()){
+        if (info.time > 0 && info.life > 0 && info.time + info.life < Date.now()) {
             return undefined;
         }
         return info;
     };
 };
 
-exports.Code = function(length, timeout){
-    if(typeof(length) !== 'number' || length <= 0){
+exports.Code = function (length, timeout) {
+    if (typeof (length) !== 'number' || length <= 0) {
         length = 6;
     }
-    if(typeof(timeout) !== 'number'){
+    if (typeof (timeout) !== 'number') {
         timeout = 0;
     }
 
     let sessions = {};
     let interval = 10000;
 
-    this.make = function(type, to){
+    this.make = function (type, to) {
         let k = `${type}:${to}`;
         let s = {
             type: type,
@@ -88,27 +87,27 @@ exports.Code = function(length, timeout){
         return s.code;
     };
 
-    this.check = function(type, to){
+    this.check = function (type, to) {
         let key = `${type}:${to}`;
         let s = sessions[key];
-        if(s){
+        if (s) {
             s.time = Date.now();
         }
         return s;
     };
 
-    this.clear = function(){
+    this.clear = function () {
         let now = Date.now();
 
         let list = [];
-        for(let key in sessions){
+        for (let key in sessions) {
             let s = sessions[key];
-            if(now > s.time + timeout * 1000){
+            if (now > s.time + timeout * 1000) {
                 list.push(key);
             }
         }
 
-        for(let i = 0; i < list.length; i++){
+        for (let i = 0; i < list.length; i++) {
             let key = list[i];
             delete sessions[key];
         }
@@ -117,20 +116,20 @@ exports.Code = function(length, timeout){
     setInterval(this.clear, interval);
 };
 
-exports.Key = function(length, timeout){
-    if(typeof(length) !== 'number' || length <= 0){
+exports.Key = function (length, timeout) {
+    if (typeof (length) !== 'number' || length <= 0) {
         length = 6;
     }
-    if(typeof(timeout) !== 'number'){
+    if (typeof (timeout) !== 'number') {
         timeout = 0;
     }
 
     let sessions = {};
     let interval = 10000;
 
-    this.make = function(data){
+    this.make = function (data) {
         let k = crypto.rsod(length);
-        while(sessions[k] !== undefined){
+        while (sessions[k] !== undefined) {
             k = crypto.rsod(length);
         }
 
@@ -144,26 +143,26 @@ exports.Key = function(length, timeout){
         return s.key;
     };
 
-    this.check = function(key){
+    this.check = function (key) {
         let s = sessions[key];
-        if(s){
+        if (s) {
             s.time = Date.now();
         }
         return s;
     };
 
-    this.clear = function(){
+    this.clear = function () {
         let now = Date.now();
 
         let list = [];
-        for(let key in sessions){
+        for (let key in sessions) {
             let s = sessions[key];
-            if(now > s.time + timeout * 1000){
+            if (now > s.time + timeout * 1000) {
                 list.push(key);
             }
         }
 
-        for(let i = 0; i < list.length; i++){
+        for (let i = 0; i < list.length; i++) {
             let key = list[i];
             delete sessions[key];
         }
