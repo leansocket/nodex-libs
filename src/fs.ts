@@ -1,6 +1,6 @@
 
-let path = require('path');
-let fs = require('fs-extra');
+const path = require('path');
+const fs = require('fs-extra');
 
 class VFS {
     constructor(root) {
@@ -101,8 +101,11 @@ class VFS {
     };
 }
 
-module.exports = fs;
-
-exports.vfs = function(root) {
+const vfs = function(root: string) : VFS {
 	return new VFS(root);
+};
+
+export default {
+    ...fs,
+    vfs
 };

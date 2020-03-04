@@ -1,6 +1,6 @@
 let mysql = require("mysql/promise");
 
-type InitOptions = {
+export type InitOptions = {
     host: string;
     port: number;
     user: string;
@@ -9,7 +9,7 @@ type InitOptions = {
     charset?: string;
 };
 
-class Connection {
+export class Connection {
     private conn;
 
     constructor(conn: any) {
@@ -109,7 +109,7 @@ class Connection {
     }
 }
 
-class MySql {
+export class MySql {
     private pool: any = null;
 
     public async init(options: InitOptions) {
@@ -162,3 +162,6 @@ class MySql {
         return ret;
     }
 }
+
+const db = new MySql(); 
+export default db;

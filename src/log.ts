@@ -1,7 +1,7 @@
 
 const chalk = require('chalk');
 
-exports.init = function(scope) {
+const init = function(scope: string) : void {
 	
 	let pad2 = function(val) {
 		return val < 10 ? `0${val}` : val;
@@ -72,4 +72,8 @@ exports.init = function(scope) {
             console_log(cfg.style(str));
 		};
 	}
+};
+
+export default {
+    init
 };

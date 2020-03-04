@@ -1,14 +1,24 @@
+const path = require('path');
 
-exports.absolutePath = function(p) {
-	return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+export const delay = async function(time: number): Promise<void> {
+    await new Promise((resolve)=>{
+        let timer = setTimeout(()=>{
+            clearTimeout(timer);
+            resolve();
+        }, time * 1000);
+    });
 }
 
-exports.checkError = function(err, ret) {
-    if(err){
+export const absolutePath = function (p: string) {
+    return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+}
+
+export const checkError = function (err: Error, ret: any) {
+    if (err) {
         return true;
     }
-    if(ret && ret.result !== undefined){
-        if(ret.result !== 0 && ret.result !== true && ret.result !== 'ok'){
+    if (ret && ret.result !== undefined) {
+        if (ret.result !== 0 && ret.result !== true && ret.result !== 'ok') {
             return true;
         }
     }
@@ -20,14 +30,14 @@ exports.checkError = function(err, ret) {
 * make_xdata(ret);
 * make_xdata(null, ret);
 * */
-exports.makeXdata = function(arg0, arg1) {
-    if(arg0 instanceof Error){
-        let xdata = {};
-        if(!arg0.code && !arg0.name){
+export const makeXdata = function (arg0: any, arg1: any) {
+    if (arg0 instanceof Error) {
+        let xdata: any = {};
+        if (!arg0.name) {
             xdata.result = 'ERR_UNKNOWN';
         }
         else {
-            let result = `${arg0.code || arg0.name}`.toUpperCase();
+            let result = `${arg0.name}`.toUpperCase();
             if (result.startsWith('ERR_')) {
                 xdata.result = result;
             }
@@ -46,14 +56,14 @@ exports.makeXdata = function(arg0, arg1) {
     }
 
     let data = undefined;
-    if(arg0 !== undefined && arg0 !== null) {
+    if (arg0 !== undefined && arg0 !== null) {
         data = arg0;
     }
-    else if(arg1 !== undefined && arg1 !== null) {
+    else if (arg1 !== undefined && arg1 !== null) {
         data = arg1;
     }
-    if(data !== undefined) {
-        let xdata = {};
+    if (data !== undefined) {
+        let xdata: any = {};
         xdata.result = 'ok';
         xdata.data = data;
         return xdata;
@@ -61,14 +71,14 @@ exports.makeXdata = function(arg0, arg1) {
 
     // fallback
     {
-        let xdata = {};
+        let xdata: any = {};
         xdata.result = 'ERR_INVALID_XDATA';
         xdata.data = 'x-data is invalid.';
         return xdata;
     }
 };
 
-exports.computeGeoDistance = function(lat1, lng1, lat2, lng2) {
+export const computeGeoDistance = function (lat1: number, lng1: number, lat2: number, lng2: number): number {
     let sqrt = Math.sqrt;
     let sin = Math.sin;
     let cos = Math.cos;

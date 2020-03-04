@@ -1,9 +1,4 @@
 
-const ext = require('./ext');
-for(let k in ext){
-    ext[k]();
-}
-
 const load = function(name){
     let m = null;
     return function(){
