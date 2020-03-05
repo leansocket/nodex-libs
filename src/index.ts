@@ -11,10 +11,10 @@ const load = function(name){
 };
 
 const modules = [
-    'log', 'fmt', 'iters', 'time', 'schedule', 'spawn', 'flakes',
+    'log', 'fmt', 'time', 'schedule', 'spawn', 'flakes',
     'http', 'smtp', 
     'db', 'mysql',
-    'fs', 'crypto', 'authes', 'html',
+    'crypto', 'authes', 'html',
     'util',
 ];
 
