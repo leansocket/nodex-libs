@@ -1,6 +1,6 @@
 let mysql = require("mysql/promise");
 
-export type InitOptions = {
+export type MySqlOptions = {
     host: string;
     port: number;
     user: string;
@@ -112,8 +112,8 @@ export class Connection {
 export class MySql {
     private pool: any = null;
 
-    public async init(options: InitOptions) {
-        options = options || {};
+    public async init(options: MySqlOptions) {
+        (options as any) = options || {};
     
         this.pool = mysql.createPool({
             host: options.host || '127.0.0.1',

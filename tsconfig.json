@@ -19,6 +19,7 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "strictPropertyInitialization": false,
+        "strictNullChecks": false,
         "noFallthroughCasesInSwitch": true,
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,

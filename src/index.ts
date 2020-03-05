@@ -13,7 +13,7 @@ const load = function(name){
 const modules = [
     'log', 'fmt', 'time', 'schedule', 'spawn', 'flakes',
     'http', 'smtp', 
-    'db', 'mysql',
+    'mysql',
     'crypto', 'authes', 'html',
     'util',
 ];

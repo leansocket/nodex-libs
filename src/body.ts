@@ -7,7 +7,7 @@ const symbolUnparsed = Symbol.for('unparsedBody');
 
 let upload = null;
 
-module.exports = function(opts) {
+export default function (opts) {
     opts = opts || {};
     opts.onError = 'onError' in opts ? opts.onError : false;
     opts.patchNode = 'patchNode' in opts ? opts.patchNode : false;
@@ -39,37 +39,37 @@ module.exports = function(opts) {
         let bodyPromise = getBodyPromise(ctx, opts);
 
         bodyPromise = bodyPromise || Promise.resolve({});
-        
+
         return bodyPromise.catch(function (err) {
             if (typeof opts.err === 'function') {
                 opts.onError(err, ctx);
-            } 
+            }
             else {
                 throw err;
             }
             return next();
         }).then(function (body) {
 
-            let patch = function(req, body){
+            let patch = function (req, body) {
                 if (opts.multipart && ctx.is('multipart')) {
                     req.body = body.fields;
                     req.files = body.files;
-                } 
+                }
                 else if (opts.includeUnparsed) {
                     req.body = body.parsed || {};
                     if (!ctx.is('text')) {
                         req.body[symbolUnparsed] = body.raw;
                     }
-                } 
+                }
                 else {
                     req.body = body;
                 }
             }
 
-            if(opts.patchNode){
+            if (opts.patchNode) {
                 patch(ctx.req, body);
             }
-            if(opts.patchKoa) {
+            if (opts.patchKoa) {
                 patch(ctx.request, body);
             }
 
@@ -78,7 +78,7 @@ module.exports = function(opts) {
     };
 }
 
-let getBodyPromise = function(ctx, opts) {
+let getBodyPromise = function (ctx, opts) {
     if (opts.parsedMethods.indexOf(ctx.method.toUpperCase()) < 0) {
         return null;
     }
@@ -90,7 +90,7 @@ let getBodyPromise = function(ctx, opts) {
             strict: opts.jsonStrict,
             returnRawBody: opts.includeUnparsed
         });
-    } 
+    }
     else if (opts.urlencoded && ctx.is('urlencoded')) {
         return cobody.form(ctx, {
             encoding: opts.encoding,
@@ -98,17 +98,17 @@ let getBodyPromise = function(ctx, opts) {
             queryString: opts.queryString,
             returnRawBody: opts.includeUnparsed
         });
-    } 
+    }
     else if (opts.text && ctx.is('text')) {
         return cobody.text(ctx, {
             encoding: opts.encoding,
             limit: opts.textLimit,
             returnRawBody: opts.includeUnparsed
         });
-    } 
+    }
     else if (opts.multipart && ctx.is('multipart')) {
         return createMultipartPromise(ctx, opts.multer);
-    } 
+    }
     else {
         return cobody.text(ctx, {
             encoding: opts.encoding,
@@ -118,16 +118,16 @@ let getBodyPromise = function(ctx, opts) {
     }
 }
 
-let createMultipartPromise = function(ctx, opts) {
+let createMultipartPromise = function (ctx, opts) {
     let req = ctx.req;
     let res = ctx.res;
     req.params = ctx.params;
 
-    return new Promise(function(resolve, reject){
+    return new Promise(function (resolve, reject) {
         let middleware = opts.ignoreFiles ? upload.fields() : upload.any();
-        
-        middleware(req, res, function(err) {
-            if(err) {
+
+        middleware(req, res, function (err) {
+            if (err) {
                 return reject(err);
             }
             return resolve({
