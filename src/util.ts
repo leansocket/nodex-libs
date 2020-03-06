@@ -1,8 +1,8 @@
 const path = require('path');
 
-export const delay = async function(time: number): Promise<void> {
-    await new Promise((resolve)=>{
-        let timer = setTimeout(()=>{
+export const delay = async function (time: number): Promise<void> {
+    await new Promise((resolve) => {
+        let timer = setTimeout(() => {
             clearTimeout(timer);
             resolve();
         }, time * 1000);
@@ -12,6 +12,19 @@ export const delay = async function(time: number): Promise<void> {
 export const absolutePath = function (p: string) {
     return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
 }
+
+export const camelCase = function (name: string): string {
+    return name.replace(/_(\w)/g, (all, letter) => {
+        return letter.toUpperCase();
+    });
+};
+export const camelCaseKeys = function (obj: object): object {
+    let ret = {};
+    Object.keys(obj).forEach(key => {
+        ret[camelCase(key)] = obj[key];
+    });
+    return ret;
+};
 
 export const checkError = function (err: Error, ret: any) {
     if (err) {

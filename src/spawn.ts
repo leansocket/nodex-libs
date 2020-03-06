@@ -1,18 +1,27 @@
-let spawn = require('cross-spawn');
-let events = require('events');
 
-class SpawnedProcess extends events.EventEmitter {
-    constructor({cwd, env} = {}) {
+import {EventEmitter} from 'events';
+const spawn = require('cross-spawn');
+
+export type  SpawnedProcessOptions = {
+    cwd: string;
+    env: any;
+}
+
+export class SpawnedProcess extends EventEmitter {
+    public cwd: string;
+    public env: any;
+
+    private _taskQueue = [];
+    private _processor = null;
+
+    constructor(options: SpawnedProcessOptions) {
         super();
 
-        this.cwd = cwd || process.cwd();
-        this.env = env || process.env;
-        
-        this._taskQueue = [];
-        this._processor = null;
+        this.cwd = options.cwd || process.cwd();
+        this.env = options.env || process.env;
     }
 
-    async post(command, options, callback) {
+    public post(command, options, callback) {
         if(!command){
             return;
         }
@@ -50,7 +59,7 @@ class SpawnedProcess extends events.EventEmitter {
         return this;
     }
 
-    _run() {
+    private _run() {
         if(!this._taskQueue.length || this._processor) {
             return;
         }
@@ -96,14 +105,14 @@ class SpawnedProcess extends events.EventEmitter {
     }
 };
 
-exports.exec = function(command, options) {
+export const exec = function(command, options) {
     return spawn(command, options);
 }
 
-exports.execSync = function(command, options) {
+export const execSync = function(command, options) {
     return spawn.sync(command, options);
 }
 
-exports.process = function({cwd, env} = {}) {
-    return new SpawnedProcess({cwd, env});
+export const spawnProcess = function(options: SpawnedProcessOptions) {
+    return new SpawnedProcess(options);
 }
