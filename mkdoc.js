@@ -1,33 +1,33 @@
 
 const path = require('path');
-const fs = require('fs');
 const typedoc = require('typedoc');
-
 const package = require('./package');
 
-const sources = [
-    path.resolve(__dirname, './src')
-];
-
 const options = {
-    module: 'commonjs',
-    target: 'es5',
-    exclude: '**/node_modules/**/*.*',
-    experimentalDecorators: true,
-    excludeExternals: true,
-    out: path.resolve(__dirname, `./doc/${package.name.replace(/@\w+\//g, '')}/${package.version}`),
     mode: 'modules',
-    excludePrivate: true,
-    excludeProtected: true,
-    tsconfig: path.resolve(__dirname, './tsconfig.json'),
-    theme: 'markdown',
-    mdEngine: 'github'
-};
+    logger: 'none',
+    target: 'ES2015',
+    module: 'CommonJS',
+    experimentalDecorators: true,
+    exclude: '**/node_modules/**/*.*',
+    out: path.resolve(__dirname, `./doc/${package.name.replace(/@\w+\//g, '')}/${package.version}`),
 
-const docApp = new typedoc.Application(options);
-const src = docApp.expandInputFiles(sources);
-const project = docApp.convert(src);
+}
+
+const app = new typedoc.Application();
+
+// If you want TypeDoc to load tsconfig.json / typedoc.json files
+app.options.addReader(new typedoc.TSConfigReader());
+app.options.addReader(new typedoc.TypeDocReader());
+
+app.bootstrap(options);
+
+const project = app.convert(app.expandInputFiles([
+    path.resolve(__dirname, './src')
+]));
 
 if (project) {
-    docApp.generateDocs(project, options.out);
+    const outputDir = options.out;
+    app.generateDocs(project, outputDir);
+    app.generateJson(project, outputDir + '/documentation.json');
 }
