@@ -1,28 +1,66 @@
-
+/**
+ * 日程规则：全部。此规则在任何情况下永远通过验证。
+*/
 type Schedule_All = '*';
+/**
+ * 日程规则：特定。此规则约束目标值与规则值相等时通过验证。
+*/
 type Schedule_One = number;
+/**
+ * 日程规则：条件。此规则定义一个函数判断目标值是否通过验证。
+*/
 type Schedule_Cond = (n: number) => boolean;
+/**
+ * 日程规则：列表。此规则约束目标值必须是列表中的元素时才能通过验证。
+*/
 type Schedule_List = number[];
 
-type ScheduleComponent =
+/**
+ * 日程规则
+*/
+type ScheduleRule =
     Schedule_All |
     Schedule_One |
     Schedule_Cond |
     Schedule_List;
 
+/**
+ * 日程选项参数
+*/
 export interface ScheduleOptions {
-    Y: ScheduleComponent;
-    M: ScheduleComponent;
-    D: ScheduleComponent;
-    d: ScheduleComponent;
-    h: ScheduleComponent;
-    m: ScheduleComponent;
-    s: ScheduleComponent;
+    /**
+     * Year，年份
+    */
+    Y: ScheduleRule;
+    /**
+     * Month，月份
+    */
+    M: ScheduleRule;
+    /**
+     * Date，日期
+    */
+    D: ScheduleRule;
+    /**
+     * day，星期
+    */
+    d: ScheduleRule;
+    /**
+     * hour，时
+    */
+    h: ScheduleRule;
+    /**
+     * minute，分
+    */
+    m: ScheduleRule;
+    /**
+     * second，秒
+    */
+    s: ScheduleRule;
 };
 
 const testSchedule = function (schedule: ScheduleOptions, now: Date): boolean {
 
-    const test = function (c: ScheduleComponent, n: number) {
+    const test = function (c: ScheduleRule, n: number) {
         if (c === undefined || c === '*') {
             return true;
         }
@@ -74,23 +112,39 @@ const inTheSameSecond = function (time1: Date, time2: Date): boolean {
         && time1.getFullYear() === time2.getFullYear();
 };
 
+/**
+ * 日程
+*/
 class Schedule {
     private schedule: any;
     private precision: number;
     private interval: any;
 
+    /**
+     * 构造器
+     * @param {ScheduleOptions} schedule 日程规则选项
+     * @param {number} precision 日程检测京都，单位为毫秒。
+    */
     constructor(schedule: ScheduleOptions, precision: number) {
         this.schedule = schedule;
         this.precision = precision || 333;
         this.interval = undefined;
     }
 
+    /**
+     * 获取日程是否在运行
+    */
     public get running() {
         return this.interval !== undefined;
     }
 
-    public start(callback: (now: Date) => void): boolean {
-        if (!this.schedule || typeof (callback) !== 'function') {
+    /**
+     * 启动日程
+     * @param {(Date)=>void} task 日程触发时的任务函数
+     * @returns {boolean} 日程是否启动成功
+    */
+    public start(task: (now: Date) => void): boolean {
+        if (!this.schedule || typeof (task) !== 'function') {
             return false;
         }
 
@@ -104,13 +158,16 @@ class Schedule {
                 return;
             }
             last = now;
-            callback(now);
+            task(now);
 
         }, this.precision);
 
         return this.interval !== undefined;
     }
 
+    /**
+     * 停止日程
+    */
     public stop(): void {
         if (this.interval === undefined) {
             return;

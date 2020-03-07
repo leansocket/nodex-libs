@@ -9,31 +9,73 @@ let fs = require('fs');
 let path = require('path');
 
 let { error } = require('./common');
+let cop = require('./cop');
 let util = require('./util');
 
 export type HttpHeaders = { [key: string]: string | number };
-export type HttpContent = string | Buffer;
 
+/**
+ * HTTP请求选项
+*/
 export interface HttpRequestOptions {
+    /**
+     * 主机名，可以是IP地址或域名。
+    */
     hostname?: string;
+    /**
+     * 端口号
+    */
     port?: number;
+    /**
+     * UNIX套接字路径
+    */
     socketPath?: string;
+    /**
+     * HTTP请求头
+    */
     headers?: HttpHeaders;
+    /**
+     * 是否是安全请求。如果是，则启用HTTPS。
+    */
     safe?: boolean;
+    /**
+     * 请求方法
+    */
     method?: 'GET' | 'POST';
+    /**
+     * 请求资源路径，形如: /user/info?id=1
+    */
     path?: string;
 }
 
+/**
+ * HTTP响应数据
+*/
 export interface HttpResponseOptions {
+    /**
+     * HTTP状态码，详细请参考HTTP协议规范。
+    */
     status: number;
+    /**
+     * 响应头
+    */
     headers: HttpHeaders;
-    content: HttpContent;
+    /**
+     * 响应数据，json会被自动解析
+     */
+    content: any;
 }
 
+/**
+ * 判断url是否是https
+*/
 export const isHttps = function (url: string): boolean {
     return url.indexOf('https://') === 0;
 };
 
+/**
+ * 将data对象的数据以key=value的方式合并到url之后，并返回合并之后的url。
+*/
 export const combineUrlAndParams = function (url: string, data: object): string {
     if (typeof (data) !== 'object' || data === null) {
         return url;
@@ -58,6 +100,9 @@ export const combineUrlAndParams = function (url: string, data: object): string 
     return ret;
 };
 
+/**
+ * 将url解析成通用的请求选项参数。
+*/
 export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOptions): HttpRequestOptions {
     let options: HttpRequestOptions = undefined;
 
@@ -75,8 +120,7 @@ export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOpt
 };
 
 /**
- * startup a http request.
- * @param options: {...http.requestOptions, safe: boolean}
+ * 发起一次HTTP请求
 */
 export const request = async function (options: HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
     options = options || {};
@@ -147,7 +191,7 @@ export const request = async function (options: HttpRequestOptions, data: any): 
                         type = 'json';
                     }
 
-                    let content: HttpContent = Buffer.concat(body);
+                    let content: any = Buffer.concat(body);
                     if (type === 'text') {
                         content = content.toString(charset);
                     }
@@ -174,7 +218,9 @@ export const request = async function (options: HttpRequestOptions, data: any): 
     return ret;
 };
 
-// callback : function(err: Error, ret: {headers: map, content: Buffer})
+/**
+ * 发起一次HTTP的GET请求。
+*/
 export const get = async function (args: string | HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
     let options = getRequestOptions(args);
     if (!options) {
@@ -186,7 +232,9 @@ export const get = async function (args: string | HttpRequestOptions, data: any)
     return await request(options, data);
 };
 
-// callback : function(err: Error, ret: {headers: map, content: Buffer})
+/**
+ * 发起一次HTTP的POST请求。
+*/
 export const post = async function (args: string | HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
     let options = exports.getRequestOptions(args);
     if (!options) {
@@ -198,8 +246,11 @@ export const post = async function (args: string | HttpRequestOptions, data: any
     return await exports.request(options, data);
 };
 
+/**
+ * 调用一次HTTP接口。HTTP接口统一采用POST方式进行通讯。
+*/
 export const call = async function (args: string | HttpRequestOptions, data: any): Promise<any> {
-    let ret = await exports.post(args, data);
+    let ret = await post(args, data);
     if (!ret || ret.status !== 200 || !ret.content) {
         throw error(`ERR_HTTP_RPC`, `invoke http rpc failed.`);
     }
@@ -210,6 +261,9 @@ export const call = async function (args: string | HttpRequestOptions, data: any
     return content.data;
 };
 
+/**
+ * 定义一组以base地址开头的接口列表，返回接口对象。接口对象会被转换成驼峰命名。
+*/
 export const rpc = function (base: string, rps: { [key: string]: string[] }): object {
     let lm = {};
     Object.keys(rps).forEach(key => {
@@ -227,8 +281,81 @@ export const rpc = function (base: string, rps: { [key: string]: string[] }): ob
     return lm;
 };
 
-exports.webapp = function (args: any): any {
-    args = args || {};
+/**
+ * koa中间件类型
+*/
+export type WebMiddleWare = (ctx: any, next: any) => any;
+
+/**
+ * Web应用参数
+*/
+export interface WebAppArgs {
+    /**
+     * 名称
+    */
+    name: string;
+    /**
+     * 主机，IP或域名
+    */
+    host: string;
+    /**
+     * 端口号
+    */
+    port: number;
+    /**
+     * https服务主机，IP或域名
+    */
+    https_host?: string;
+    /**
+     * https服务端口
+    */
+    https_port?: number;
+    /**
+     * https服务证书文件路径
+    */
+    https_cert?: string;
+    /**
+     * https服务证书密钥文件路径
+     */
+    https_key?: string;
+    /**
+     * 是否开启hsts
+    */
+    https_hsts?: boolean;
+    /**
+     * 是否开启http2
+    */
+    http2?: boolean;
+    /**
+     * 是否启用请求日志记录功能，开启后会在控制台输出请求信息。
+    */
+    log?: boolean;
+    /**
+     * 是否开启跨域控制
+    */
+    cors?: boolean;
+    /**
+     * 是否开启代理模式
+    */
+    proxy?: boolean;
+    /**
+     * body解析器设置
+     * * false：禁用body解析。
+     * * object：配置body解析器参数，详细参考body模块说明。
+     * * middleware：使用自定义中间件自行解析body。
+     * * 其他情况：使用默认的body解析设置。
+    */
+    body?: boolean | object | WebMiddleWare;
+};
+/**
+ * 创建一个基于koa2的web应用。
+*/
+exports.webapp = function (args: WebAppArgs): any {
+    args = args || {
+        name: 'http',
+        host: '127.0.0.1',
+        port: 80
+    };
 
     let fs = require('fs');
     let koa = require('koa');
@@ -260,12 +387,8 @@ exports.webapp = function (args: any): any {
     if (args.cors) {
         app.use(koa_cors());
     }
-    else if (args.cda) {
-        console.warn(`'cda' is deprecated, please use cors instade.`);
-        app.use(koa_cors());
-    }
 
-    if (args.body) {
+    if (args.body !== false) {
         let bodyType = typeof args.body;
         if (bodyType === 'object') {
             app.use(koa_body(args.body));
@@ -276,9 +399,6 @@ exports.webapp = function (args: any): any {
         else {
             app.use(koa_body());
         }
-    }
-    else if (args.body !== false) {
-        app.use(koa_body());
     }
 
     if (args.https_cert && args.https_key) {
@@ -317,7 +437,7 @@ exports.webapp = function (args: any): any {
                 await next();
             }
             catch (err) {
-                ctx.body = util.makeXdata(err, null);
+                ctx.body = cop.make(err, null);
                 ctx.app.emit('error', err);
             }
         });
@@ -344,23 +464,47 @@ exports.webapp = function (args: any): any {
     return app;
 };
 
-export const body = function (options: object): (ctx: any, next: any) => Promise<any> {
+/**
+ * 创建一个body解析器中间件，详细选项设置请参考body模块。
+*/
+export const body = function (options: object): WebMiddleWare {
     let bodyParser = require('./body');
     return bodyParser(options);
 };
 
+/**
+ * 发送http响应
+*/
 export const send = function (ctx: any, arg1: any, arg2?: any) {
-    let message = util.makeXdata(arg1, arg2);
+    let message = cop.make(arg1, arg2);
     //console.log(`http: send ${JSON.stringify(message)}`);
     ctx.response.body = message;
 };
 
+/**
+ * 发送文件的选项
+*/
 export type SendFileOptions = {
+    /**
+     * 是否启用brotli，brotli相关信息请自行参考文献。
+    */
     brotli: boolean;
+    /**
+     * 是否启用gzip压缩
+    */
     gzip: boolean;
+    /**
+     * http缓存控制的maxAge属性
+    */
     maxAge: number;
+    /**
+     * http缓存控制的immutable属性
+    */
     immutable: boolean;
 }
+/**
+ * 发送响应文件。
+*/
 export const sendFile = async function (ctx, filepath: string, options: SendFileOptions): Promise<void> {
     let fileext = '';
     if (options.brotli !== false && ctx.acceptsEncodings('br', 'identity') === 'br' && (fs.existsSync(filepath + '.br'))) {
@@ -399,7 +543,10 @@ export const sendFile = async function (ctx, filepath: string, options: SendFile
     ctx.body = fs.createReadStream(filepath);
 };
 
-export const handler = function (func: (args: object) => any): (ctx: any) => Promise<void> {
+/**
+ * 将func函数包装成一个中间件
+*/
+export const handler = function (func: (args: object) => any): WebMiddleWare{
     if (typeof (func) !== 'function') {
         throw error(`ERR_INVALID_ARGS`, `the type of 'func' is not a 'async function'.`);
     }

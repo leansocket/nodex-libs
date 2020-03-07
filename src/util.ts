@@ -1,5 +1,12 @@
 const path = require('path');
 
+/**
+ * 延迟，一般用法为:
+ * ``` js
+ * await delay(0.5) // 延迟0.5秒
+ * ```
+ * @param {number} time 需要延迟的时间，单位为秒。
+*/
 export const delay = async function (time: number): Promise<void> {
     await new Promise((resolve) => {
         let timer = setTimeout(() => {
@@ -9,15 +16,29 @@ export const delay = async function (time: number): Promise<void> {
     });
 }
 
+/**
+ * 获取路径p的绝对路径，如果p以 . 开始，返回相对于当前进程cwd的绝对路径。
+*/
 export const absolutePath = function (p: string) {
     return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
 }
 
+/**
+ * 获取name的驼峰形式。如：
+ * ```
+ * get_user_info => getUserInfo
+ * _get_user_info => GetUserInfo
+ * ```
+*/
 export const camelCase = function (name: string): string {
     return name.replace(/_(\w)/g, (all, letter) => {
         return letter.toUpperCase();
     });
 };
+
+/**
+ * 将对象obj的key全部变成驼峰形式。
+*/
 export const camelCaseKeys = function (obj: object): object {
     let ret = {};
     Object.keys(obj).forEach(key => {
@@ -26,71 +47,9 @@ export const camelCaseKeys = function (obj: object): object {
     return ret;
 };
 
-export const checkError = function (err: Error, ret: any) {
-    if (err) {
-        return true;
-    }
-    if (ret && ret.result !== undefined) {
-        if (ret.result !== 0 && ret.result !== true && ret.result !== 'ok') {
-            return true;
-        }
-    }
-    return false;
-};
-
-/*
-* make_xdata(err);
-* make_xdata(ret);
-* make_xdata(null, ret);
-* */
-export const makeXdata = function (arg0: any, arg1: any) {
-    if (arg0 instanceof Error) {
-        let xdata: any = {};
-        if (!arg0.name) {
-            xdata.result = 'ERR_UNKNOWN';
-        }
-        else {
-            let result = `${arg0.name}`.toUpperCase();
-            if (result.startsWith('ERR_')) {
-                xdata.result = result;
-            }
-            else if (result.startsWith('ER_')) {
-                xdata.result = 'ERR_' + result.substr(3);
-            }
-            else if (result.startsWith('ERROR_')) {
-                xdata.result = 'ERR_' + result.substr(6);
-            }
-            else {
-                xdata.result = 'ERR_' + result;
-            }
-        }
-        xdata.data = arg0.message;
-        return xdata;
-    }
-
-    let data = undefined;
-    if (arg0 !== undefined && arg0 !== null) {
-        data = arg0;
-    }
-    else if (arg1 !== undefined && arg1 !== null) {
-        data = arg1;
-    }
-    if (data !== undefined) {
-        let xdata: any = {};
-        xdata.result = 'ok';
-        xdata.data = data;
-        return xdata;
-    }
-
-    // fallback
-    {
-        let xdata: any = {};
-        xdata.result = 'ERR_INVALID_XDATA';
-        xdata.data = 'x-data is invalid.';
-        return xdata;
-    }
-};
-
+/**
+ * 计算地球上亮点之间的地理距离。
+*/
 export const computeGeoDistance = function (lat1: number, lng1: number, lat2: number, lng2: number): number {
     let sqrt = Math.sqrt;
     let sin = Math.sin;

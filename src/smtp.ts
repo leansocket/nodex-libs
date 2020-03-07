@@ -4,12 +4,30 @@ import { Mail, createTransport } from 'nodemailer';
 /**
  * SMTP选项
 */
-export type ChannelOptions = {
+export interface ChannelOptions {
+    /**
+     * 邮件服务主机，IP或域名。
+    */
     host: string;
+    /**
+     * 邮件服务端口
+    */
     port: number;
+    /**
+     * 是否启用安全发送
+    */
     secure: boolean;
+    /**
+     * 是否启用安全连接
+    */
     secureConnection: boolean;
+    /**
+     * 邮件服务用户名
+    */
     user: string;
+    /**
+     * 邮件服务用户密码
+    */
     pass: string;
 }
 
@@ -69,6 +87,9 @@ export interface MailOptions {
     attachments?: MailAttachment[];
 }
 
+/**
+ * 邮件发送通道
+*/
 export class Channel {
     private options: ChannelOptions;
     private transport: Mail;
@@ -93,6 +114,9 @@ export class Channel {
         });
     }
 
+    /**
+     * 发送邮件
+    */
     public async send(mail: MailOptions): Promise<any> {
         console.log(`smtp: send mail from '${mail.from}' to '${mail.to}'`);
 
@@ -106,6 +130,9 @@ export class Channel {
         });
     };
 
+    /**
+     * 发送邮件，参数比send更简洁。
+    */
     public async sendQuickly(to: string, subject: string, content: string, attachments: string[]): Promise<any> {
         let mail: MailOptions = {
             from: this.options.user,

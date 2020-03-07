@@ -1,5 +1,11 @@
 import { error } from './common';
 
+/**
+ * obj中是否存在field字段
+ * @param {object} obj 待检查的对象
+ * @param {string} field 待检查的字段名称
+ * @returns {boolean} 结果
+*/
 export const has = function (obj: object, field: string): boolean {
     if (!obj) {
         return false;
@@ -17,6 +23,12 @@ export const has = function (obj: object, field: string): boolean {
     return false;
 }
 
+/**
+ * 字段列表中的其中一个字段在obj中是否存在。
+ * @param {object} obj 待检查的对象
+ * @param {string[]} fields 待检查的字段列表
+ * @returns {boolean} 结果
+*/
 export const hasOne = function (obj: object, fields: string[]): boolean {
     for (let i = 0; i < fields.length; i++) {
         let f = fields[i];
@@ -27,6 +39,12 @@ export const hasOne = function (obj: object, fields: string[]): boolean {
     return false;
 }
 
+/**
+ * 字段列表中的字段在obj中是否全部存在。
+ * @param {object} obj 待检查的对象
+ * @param {string[]} fields 待检查的字段列表
+ * @returns {boolean} 结果
+*/
 export const hasAll = function (obj: object, fields: string[]): boolean {
     for (let i = 0; i < fields.length; i++) {
         let f = fields[i];
@@ -37,6 +55,11 @@ export const hasAll = function (obj: object, fields: string[]): boolean {
     return true;
 }
 
+/**
+ * 断言字段列表fields中的字段在对象obj中至少存在一个。如果断言失败，会抛出错误。
+ * @param {object} obj 待检查的对象
+ * @param {string[]} fields 待检查的字段列表
+*/
 export const assertOne = function (obj: object, fields: string[]): void {
     for (let i = 0; i < fields.length; i++) {
         let f = fields[i];
@@ -47,6 +70,11 @@ export const assertOne = function (obj: object, fields: string[]): void {
     throw error("ERR_FIELED_REQUIRED", `Nothing is defined in the object.`);
 };
 
+/**
+ * 断言字段列表fields中的全部字段在对象obj中都存在。断言失败会抛出错误。
+ * @param {object} obj 待检查的对象
+ * @param {string[]} fields 待检查的字段列表
+*/
 export const assertAll = function (obj: object, fields: string[]): void {
     for (let i = 0; i < fields.length; i++) {
         let f = fields[i];
@@ -56,6 +84,11 @@ export const assertAll = function (obj: object, fields: string[]): void {
     }
 };
 
+/**
+ * 数据格式校验规则，其中包含两类：
+ * * 正则表达式
+ * * 接口：{test: (val)=>boolean}
+*/
 export const rules = {
     'string': {
         test: function (val) {
@@ -115,6 +148,15 @@ export const rules = {
     'html': /^<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)$/
 };
 
+/**
+ * 可选项检查，如果字段存在就进行数据格式校验，如果字段不存在就返回默认值。
+ * @param {T} field 待检查的字段值
+ * @param {string|RegExp} format 校验规则
+ * @param {number} minlen 最小长度
+ * @param {number} maxlen 最大长度
+ * @param {T} defaultValue 默认值
+ * @returns {boolean} 字段是否存在
+*/
 export const optional = function <T>(field: T, format: string | RegExp, minlen: number, maxlen: number, defaultValue: T): boolean {
     if (field === undefined || field === null) {
         if (defaultValue !== undefined) {
@@ -165,6 +207,14 @@ export const optional = function <T>(field: T, format: string | RegExp, minlen: 
     return true;
 };
 
+/**
+ * 必备项检查，如果字段存在就进行数据格式校验，如果字段就抛出错误。
+ * @param {T} field 待检查的字段值
+ * @param {string|RegExp} format 校验规则
+ * @param {number} minlen 最小长度
+ * @param {number} maxlen 最大长度
+ * @returns {boolean} 字段是否存在
+*/
 export const required = function <T>(field: T, format: string, minlen: number, maxlen: number): boolean {
     if (field === undefined || field === null) {
         throw error('ERR_FIELD_REQUIRED', `field is null or undefined.`);
