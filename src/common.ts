@@ -5,7 +5,7 @@
  * @param {string} message 错误信息
  * @returns {Error} 构建的错误对象
 */
-export const error = function(name: string, message: string) : Error {
+export const error = function (name: string, message: string): Error {
     let err = new Error(message);
     err.name = name;
     return err;
@@ -16,7 +16,7 @@ export const error = function(name: string, message: string) : Error {
  * * err是一个Error实例，返回true。
  * * ret.result !== 'ok', 返回true。
 */
-export const checkError = function (err: Error, ret: any) :boolean {
+export const checkError = function (err: Error, ret: any): boolean {
     if (err) {
         return true;
     }

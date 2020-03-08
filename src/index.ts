@@ -1,3 +1,4 @@
+const common = require('./common');
 
 const load = function(name){
     let m = null;
@@ -18,10 +19,15 @@ const modules = [
     'util',
 ];
 
-
 for(let i = 0; i < modules.length; i++){
-    let m = modules[i];
-    Object.defineProperty(module.exports, m, {
-        get: load(m)
+    let name = modules[i];
+    Object.defineProperty(module.exports, name, {
+        get: load(name)
     });
 }
+Object.keys(common).forEach(name=>{
+    let p = common[name];
+    Object.defineProperty(module.exports, name, {
+        get: p
+    });
+})

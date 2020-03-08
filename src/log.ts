@@ -5,7 +5,7 @@ const chalk = require('chalk');
  * 初始化日志模块
  * @param {string} scope 日志的前缀标签
 */
-const init = function(scope: string) : void {
+export const init = function(scope: string) : void {
 	
 	let pad2 = function(val) {
 		return val < 10 ? `0${val}` : val;
@@ -76,8 +76,4 @@ const init = function(scope: string) : void {
             console_log(cfg.style(str));
 		};
 	}
-};
-
-export default {
-    init
 };

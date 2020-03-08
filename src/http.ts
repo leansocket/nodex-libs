@@ -1,16 +1,16 @@
 
-let http = require('http');
-let https = require('https');
-let http2 = require('http2');
-let liburl = require('url');
-let query = require('querystring');
+const http = require('http');
+const https = require('https');
+const http2 = require('http2');
+const liburl = require('url');
+const query = require('querystring');
 
-let fs = require('fs');
-let path = require('path');
+const fs = require('fs');
+const path = require('path');
 
-let { error } = require('./common');
-let cop = require('./cop');
-let util = require('./util');
+const { error } = require('./common');
+const cop = require('./cop');
+const util = require('./util');
 
 export type HttpHeaders = { [key: string]: string | number };
 
