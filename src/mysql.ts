@@ -1,4 +1,4 @@
-let mysql = require("mysql/promise");
+let mysql = require("mysql");
 
 /**
  * mysql选项
@@ -46,12 +46,12 @@ export class Connection {
      * @param {boolean} logsql 是否打印SQL语句
      * @returns {any} 查询结果集
     */
-    public async query(sql: string, logsql: boolean = true) : Promise<any> {
-        if(logsql){
+    public async query(sql: string, logsql: boolean = true): Promise<any> {
+        if (logsql) {
             console.log(`db: ${sql}`);
         }
 
-        let ret = await new Promise((resolve, reject)=>{
+        let ret = await new Promise((resolve, reject) => {
             this.conn.query(sql, (err, ret) => {
                 if (err) {
                     return reject(err);
@@ -70,37 +70,37 @@ export class Connection {
      * @param {number} size 每页的数据条数
      * @returns {any} 查询结果集
     */
-    public async page(sql: string, page: number, size: number) : Promise<any> {   
-        let has_limit = 
+    public async page(sql: string, page: number, size: number): Promise<any> {
+        let has_limit =
             sql.indexOf('limit') >= 0 ||
             sql.indexOf('LIMIT') >= 0;
-    
+
         if (!has_limit) {
-            if(page >= 0 && size > 0) {
-                if(sql.endsWith(';')){
+            if (page >= 0 && size > 0) {
+                if (sql.endsWith(';')) {
                     sql = sql.substr(0, sql.length - 1);
                 }
                 sql = `${sql} limit ${(page - 1) * size}, ${size};`;
             }
         }
-    
+
         let calc_sql_found_rows =
             sql.indexOf('sql_calc_found_rows') > 0 ||
             sql.indexOf('SQL_CALC_FOUND_ROWS') > 0;
-    
-        if(!calc_sql_found_rows) {
+
+        if (!calc_sql_found_rows) {
             let results = await exports.query(sql);
             return {
                 data: results || [],
                 count: results.length || 0,
             };
         }
-    
+
         await this.transaction();
         let rsList = await this.query(sql);
         let rsCount = await this.query(`select FOUND_ROWS() as 'count';`);
         await this.commit();
-    
+
         return {
             data: rsList,
             count: rsCount.length > 0 ? rsCount[0].count : 0
@@ -110,10 +110,10 @@ export class Connection {
     /**
      * 开启事务
     */
-    public async transaction() : Promise<void> {
-        await new Promise((resolve, reject)=>{
-            this.conn.beginTransaction((err)=>{
-                if(err){
+    public async transaction(): Promise<void> {
+        await new Promise((resolve, reject) => {
+            this.conn.beginTransaction((err) => {
+                if (err) {
                     return reject(err);
                 }
                 resolve();
@@ -125,9 +125,9 @@ export class Connection {
      * 提交事务
     */
     public async commit(): Promise<void> {
-        await new Promise((resolve, reject)=>{
-            this.conn.commit((err)=>{
-                if(err){
+        await new Promise((resolve, reject) => {
+            this.conn.commit((err) => {
+                if (err) {
                     return reject(err);
                 }
                 return resolve();
@@ -138,10 +138,10 @@ export class Connection {
     /**
      * 回滚事务
     */
-    public async rollback() : Promise<void> {
+    public async rollback(): Promise<void> {
         await new Promise((resolve, reject) => {
-            this.conn.rollback((err)=>{
-                if(err){
+            this.conn.rollback((err) => {
+                if (err) {
                     return reject(err);
                 }
                 return resolve();
@@ -169,7 +169,7 @@ export class MySql {
     */
     public async init(options: MySqlOptions) {
         (options as any) = options || {};
-    
+
         this.pool = mysql.createPool({
             host: options.host || '127.0.0.1',
             port: options.port || 3306,
@@ -185,17 +185,17 @@ export class MySql {
      * @param {boolean} transaction 开启事务
      * @returns {Connection} 数据库连接对象
     */
-    public async connect(transaction: boolean = false) : Promise<Connection> {
-        return await new Promise((resolve, reject)=>{
+    public async connect(transaction: boolean = false): Promise<Connection> {
+        return await new Promise((resolve, reject) => {
             this.pool.getConnection((err, conn) => {
                 if (err) {
                     return reject(err);
                 }
-                if(!transaction) { 
+                if (!transaction) {
                     return resolve(new Connection(conn));
                 }
                 conn.beginTransaction((err) => {
-                    if(err) {
+                    if (err) {
                         return reject(err);
                     }
                     return resolve(new Connection(conn));
@@ -207,7 +207,7 @@ export class MySql {
     /**
      * 连接数据库并开启事务。
     */
-    public async transaction() : Promise<Connection> {
+    public async transaction(): Promise<Connection> {
         return await this.connect(true);
     }
 
@@ -217,7 +217,7 @@ export class MySql {
      * @param {boolean} logsql 是否打印SQL语句
      * @returns {any} 查询结果集
     */
-    public async query(sql: string, logsql: boolean = true) : Promise<any> {
+    public async query(sql: string, logsql: boolean = true): Promise<any> {
         let conn = await this.connect();
         let ret = await conn.query(sql, logsql);
         conn.release();
@@ -231,7 +231,7 @@ export class MySql {
      * @param {number} size 每页的数据条数
      * @returns {any} 查询结果集
     */
-    public async page(sql: string, page: number, size: number) : Promise<any> {
+    public async page(sql: string, page: number, size: number): Promise<any> {
         let conn = await this.connect();
         let ret = await conn.page(sql, page, size);
         conn.release();
@@ -239,5 +239,48 @@ export class MySql {
     }
 }
 
-const db = new MySql(); 
-export default db;
+const db = new MySql();
+
+/**
+ * 初始化全局MySql对象
+*/
+export const init = async function (options: MySqlOptions) {
+    return await db.init(options);
+}
+
+/**
+  * 连接数据库
+  * @param {boolean} transaction 开启事务
+  * @returns {Connection} 数据库连接对象
+ */
+export const connect = async function (transaction: boolean = false): Promise<Connection> {
+    return await db.connect(transaction);
+}
+
+/**
+ * 连接数据库并开启事务。
+*/
+export const transaction = async function (): Promise<Connection> {
+    return await db.connect(true);
+}
+
+/**
+ * 连接数据库，执行一次SQL查询，并自动释放连接。
+ * @param {string} sql SQL语句
+ * @param {boolean} logsql 是否打印SQL语句
+ * @returns {any} 查询结果集
+*/
+export const query = async function (sql: string, logsql: boolean = true): Promise<any> {
+    return await db.query(sql, logsql);
+}
+
+/**
+ * 连接数据库，执行一次分页查询，并自动释放连接。
+ * @param {string} sql SQL语句
+ * @param {number} page 当前页码，从1开始。
+ * @param {number} size 每页的数据条数
+ * @returns {any} 查询结果集
+*/
+export const page = async function (sql: string, page: number, size: number): Promise<any> {
+    return await db.page(sql, page, size);
+}
