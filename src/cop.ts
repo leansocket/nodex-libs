@@ -22,27 +22,27 @@ export interface CommonOperationPacket {
 */
 export const make = function (arg0: any, arg1?: any) : CommonOperationPacket {
     if (arg0 instanceof Error) {
-        let xdata: any = {};
+        let packet: any = {};
         if (!arg0.name) {
-            xdata.result = 'ERR_UNKNOWN';
+            packet.result = 'ERR_UNKNOWN';
         }
         else {
             let result = `${arg0.name}`.toUpperCase();
             if (result.startsWith('ERR_')) {
-                xdata.result = result;
+                packet.result = result;
             }
             else if (result.startsWith('ER_')) {
-                xdata.result = 'ERR_' + result.substr(3);
+                packet.result = 'ERR_' + result.substr(3);
             }
             else if (result.startsWith('ERROR_')) {
-                xdata.result = 'ERR_' + result.substr(6);
+                packet.result = 'ERR_' + result.substr(6);
             }
             else {
-                xdata.result = 'ERR_' + result;
+                packet.result = 'ERR_' + result;
             }
         }
-        xdata.data = arg0.message;
-        return xdata;
+        packet.data = arg0.message;
+        return packet;
     }
 
     let data = undefined;
@@ -53,17 +53,17 @@ export const make = function (arg0: any, arg1?: any) : CommonOperationPacket {
         data = arg1;
     }
     if (data !== undefined) {
-        let xdata: any = {};
-        xdata.result = 'ok';
-        xdata.data = data;
-        return xdata;
+        let packet: any = {};
+        packet.result = 'ok';
+        packet.data = data;
+        return packet;
     }
 
     // fallback
     {
-        let xdata: any = {};
-        xdata.result = 'ERR_INVALID_XDATA';
-        xdata.data = 'x-data is invalid.';
-        return xdata;
+        let packet: any = {};
+        packet.result = 'ERR_INVALID_COPDATA';
+        packet.data = 'data of COP is invalid.';
+        return packet;
     }
 };

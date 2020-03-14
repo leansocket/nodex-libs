@@ -102,7 +102,7 @@ export class Connection {
         await this.commit();
 
         return {
-            data: rsList,
+            list: rsList,
             count: rsCount.length > 0 ? rsCount[0].count : 0
         };
     };
