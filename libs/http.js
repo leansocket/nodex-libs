@@ -179,7 +179,7 @@ exports.get = async function(args, data) {
 };
 
 // callback : function(err: Error, ret: {headers: map, content: Buffer})
-exports.post = async function(opts, data) {
+exports.post = async function(args, data) {
     let options = exports.getRequestOptions(args);
     if(!options) {
         throw Error.make('ERR_INVALID_ARGS', 'the args of http.post is invalid.');
