@@ -122,12 +122,12 @@ export const rules = {
     },
     'integer': {
         test: function (val) {
-            return typeof (val) === 'number' && exports.rules['integer_str'].test(val);
+            return typeof (val) === 'number' && rules['integer_str'].test(val.toString());
         }
     },
     'float': {
         test: function (val) {
-            return typeof (val) === 'number' && exports.rules['float_str'].test(val);
+            return typeof (val) === 'number' && rules['float_str'].test(val.toString());
         }
     },
 
@@ -169,7 +169,7 @@ export const optional = function <T>(field: T, format: string | RegExp, minlen: 
         // do nothing.
     }
     else if (typeof (format) === 'string') {
-        let rule = exports.rules[format];
+        let rule = rules[format];
         if (!rule) {
             throw error('ERR_FORMAT_UNDEFINED', `the format '${format}' is undefined.`);
         }

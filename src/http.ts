@@ -104,19 +104,20 @@ export const combineUrlAndParams = function (url: string, data: object): string 
  * 将url解析成通用的请求选项参数。
 */
 export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOptions): HttpRequestOptions {
-    let options: HttpRequestOptions = undefined;
-
-    if (typeof (optionsOrUrl) === 'string' && optionsOrUrl.length > 0) {
+    if(typeof(optionsOrUrl) === 'object') {
+        return optionsOrUrl;
+    }
+    else if (typeof (optionsOrUrl) === 'string' && optionsOrUrl.length > 0) {
         let urlinfo = liburl.parse(optionsOrUrl);
-        options = {
+        return {
             hostname: urlinfo.hostname,
             port: urlinfo.port,
             path: urlinfo.path,
-            safe: exports.isHttps(optionsOrUrl),
+            safe: isHttps(optionsOrUrl),
         };
     }
 
-    return options;
+    return null;
 };
 
 /**
@@ -140,7 +141,7 @@ export const request = async function (options: HttpRequestOptions, data: any): 
     }
 
     if (options.method === 'GET') {
-        options.path = exports.combineUrlAndParams(options.path, data);
+        options.path = combineUrlAndParams(options.path, data);
     }
     else if (options.method === 'POST') {
         options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';
@@ -236,14 +237,14 @@ export const get = async function (args: string | HttpRequestOptions, data: any)
  * 发起一次HTTP的POST请求。
 */
 export const post = async function (args: string | HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
-    let options = exports.getRequestOptions(args);
+    let options = getRequestOptions(args);
     if (!options) {
         throw error('ERR_INVALID_ARGS', 'the args of http.post is invalid.');
     }
 
     options.method = 'POST';
 
-    return await exports.request(options, data);
+    return await request(options, data);
 };
 
 /**
@@ -350,7 +351,7 @@ export interface WebAppArgs {
 /**
  * 创建一个基于koa2的web应用。
 */
-exports.webapp = function (args: WebAppArgs): any {
+export const webapp = function (args: WebAppArgs): any {
     args = args || {
         name: 'http',
         host: '127.0.0.1',

@@ -89,7 +89,7 @@ export class Connection {
             sql.indexOf('SQL_CALC_FOUND_ROWS') > 0;
 
         if (!calc_sql_found_rows) {
-            let results = await exports.query(sql);
+            let results = await this.query(sql);
             return {
                 data: results || [],
                 count: results.length || 0,

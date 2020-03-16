@@ -28,6 +28,8 @@ for(let i = 0; i < modules.length; i++){
 Object.keys(common).forEach(name=>{
     let p = common[name];
     Object.defineProperty(module.exports, name, {
-        get: p
+        get: ()=>{
+            return p;
+        }
     });
 })

@@ -1,23 +1,23 @@
 /**
  * 常量：每秒钟的毫秒数
 */
-export const MS_PER_SECOND = exports.MS_PER_SECOND = 1000;
+export const MS_PER_SECOND = 1000;
 /**
  * 常量：每分钟的毫秒数
 */
-export const MS_PER_MINUTE = exports.MS_PER_MINUTE = 60000;
+export const MS_PER_MINUTE = 60000;
 /**
  * 常量：每小时的毫秒数
 */
-export const MS_PER_HOUR = exports.MS_PER_HOUR = 3600000;
+export const MS_PER_HOUR = 3600000;
 /**
  * 常量：每天的毫秒数
  */
-export const MS_PER_DAY = exports.MS_PER_DAY = 86400000;
+export const MS_PER_DAY = 86400000;
 /**
  * 常量：每周的毫秒数
 */
-export const MS_PER_WEEK = exports.MS_PER_WEEK = 86400 * 7;
+export const MS_PER_WEEK = 86400 * 7;
 
 /**
  * 时间段，代表两个时间点之间的时长。
