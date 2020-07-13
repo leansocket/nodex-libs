@@ -12,15 +12,15 @@ export interface ChannelOptions {
     /**
      * 邮件服务端口
     */
-    port: number;
+    port?: number;
     /**
      * 是否启用安全发送
     */
-    secure: boolean;
+    secure?: boolean;
     /**
      * 是否启用安全连接
     */
-    secureConnection: boolean;
+    secureConnection?: boolean;
     /**
      * 邮件服务用户名
     */
