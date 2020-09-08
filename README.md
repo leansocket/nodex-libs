@@ -183,6 +183,9 @@ p.post(`npm`, [`--version`]);
 
 ## Release Note
 
+### 2.0.0
+* MOD: modified all javascript code to typescript.
+
 ### 1.7.2
 * NEW: http.request.
 
