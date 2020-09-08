@@ -208,14 +208,14 @@ export const optional = function <T>(field: T, format: string | RegExp, minlen: 
 };
 
 /**
- * 必备项检查，如果字段存在就进行数据格式校验，如果字段就抛出错误。
+ * 必备项检查，如果字段存在就进行数据格式校验，如果字段不存在就抛出错误。
  * @param {T} field 待检查的字段值
  * @param {string|RegExp} format 校验规则
  * @param {number} minlen 最小长度
  * @param {number} maxlen 最大长度
  * @returns {boolean} 字段是否存在
 */
-export const required = function <T>(field: T, format: string, minlen: number, maxlen: number): boolean {
+export const required = function <T>(field: T, format: string, minlen?: number, maxlen?: number): boolean {
     if (field === undefined || field === null) {
         throw error('ERR_FIELD_REQUIRED', `field is null or undefined.`);
     }

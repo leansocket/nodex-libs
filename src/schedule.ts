@@ -123,9 +123,9 @@ class Schedule {
     /**
      * 构造器
      * @param {ScheduleOptions} schedule 日程规则选项
-     * @param {number} precision 日程检测京都，单位为毫秒。
+     * @param {number} precision 日程检测精度，单位为毫秒。
     */
-    constructor(schedule: ScheduleOptions, precision: number) {
+    constructor(schedule: ScheduleOptions, precision?: number) {
         this.schedule = schedule;
         this.precision = precision || 333;
         this.interval = undefined;
@@ -173,6 +173,7 @@ class Schedule {
             return;
         }
         clearInterval(this.interval);
+        this.interval = undefined;
     }
 }
 
