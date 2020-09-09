@@ -1,5 +1,7 @@
-.idea
+node_modules
 doc
 lib
-node_modules
 package-lock.json
+yarn.lock
+.idea
+coverage

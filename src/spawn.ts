@@ -1,6 +1,6 @@
 
-import {EventEmitter} from 'events';
-const spawn = require('cross-spawn');
+import { EventEmitter } from 'events';
+import spawn from 'cross-spawn';
 
 /**
  * 子进程选项
