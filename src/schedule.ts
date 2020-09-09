@@ -114,6 +114,11 @@ const inTheSameSecond = function (time1: Date, time2: Date): boolean {
 
 /**
  * 日程
+ * * 日程是为了解决在特定的时刻执行任务的需求，
+ * 例如：每周星期二上午九点执行任务A。
+ * * 日程不是解决每隔单位时间执行任务的需求，
+ * 如：每隔30秒执行任务B，你可以用计时器
+ * setInterval之类的方法完成这类需求。
 */
 class Schedule {
     private schedule: any;
