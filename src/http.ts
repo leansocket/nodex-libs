@@ -347,6 +347,12 @@ export interface WebAppArgs {
      * * 其他情况：使用默认的body解析设置。
     */
     body?: boolean | object | WebMiddleWare;
+    /**
+     * 通用的/ping路由配置
+     * * 启用此项配置会添加一个默认的通用的/ping路由。
+     * * /ping路由通常用于网络诊断服务检查此服务可用性。
+    */
+    ping?: boolean;
 };
 /**
  * 创建一个基于koa2的web应用。
@@ -433,6 +439,7 @@ export const webapp = function (args: WebAppArgs): any {
 
     app.route = function (func) {
         let router = new koa_router();
+
         router.use(async (ctx, next) => {
             try {
                 await next();
@@ -442,6 +449,13 @@ export const webapp = function (args: WebAppArgs): any {
                 ctx.app.emit('error', err);
             }
         });
+
+        if(args.ping) {
+            router.post('/pinng', async function(ctx, next){
+                ctx.response.body = cop.make(true);
+            });
+        }
+
         func(router);
         app.use(router.routes()).use(router.allowedMethods());
     };
