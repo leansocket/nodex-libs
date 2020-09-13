@@ -452,7 +452,7 @@ export const webapp = function (args: WebAppArgs): any {
         });
 
         if(args.ping) {
-            router.post('/_pinng', async function(ctx, next){
+            router.post('/_ping', async function(ctx, next){
                 ctx.response.body = cop.make(true);
             });
         }
