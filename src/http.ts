@@ -348,9 +348,10 @@ export interface WebAppArgs {
     */
     body?: boolean | object | WebMiddleWare;
     /**
-     * 通用的/ping路由配置
-     * * 启用此项配置会添加一个默认的通用的/ping路由。
-     * * /ping路由通常用于网络诊断服务检查此服务可用性。
+     * 通用的/_ping路由配置
+     * * 启用此项配置会添加一个默认的通用的/_ping路由。
+     * * /_ping路由通常用于网络诊断服务检查此服务可用性。
+     * * 所有以 /_ 开始的都是内部路由。
     */
     ping?: boolean;
 };
@@ -451,7 +452,7 @@ export const webapp = function (args: WebAppArgs): any {
         });
 
         if(args.ping) {
-            router.post('/pinng', async function(ctx, next){
+            router.post('/_pinng', async function(ctx, next){
                 ctx.response.body = cop.make(true);
             });
         }
