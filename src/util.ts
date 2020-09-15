@@ -57,7 +57,7 @@ export const camelCaseKeys = function (obj: object): object {
 };
 
 /**
- * 计算地球上亮点之间的地理距离。
+ * 计算地球球面上两个经纬点之间的地理距离。
 */
 export const computeGeoDistance = function (lat1: number, lng1: number, lat2: number, lng2: number): number {
     let sqrt = Math.sqrt;
