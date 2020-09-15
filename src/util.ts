@@ -17,10 +17,19 @@ export const delay = async function (time: number): Promise<void> {
 }
 
 /**
- * 获取路径p的绝对路径，如果p以 . 开始，返回相对于当前进程cwd的绝对路径。
+ * 获取路径p的绝对路径
+ * * 如果p以 '/' 开始，返回相对于当前进程cwd的绝对路径。
 */
 export const absolutePath = function (p: string) {
-    return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+    const c = p.charAt(0);
+    if(c === '/') {
+        return path.resolve(process.cwd(), p);
+    }
+    if(c === '.') {
+        console.warn(`util.absolutePath(${p}) is deprecated, please use util.absolutePath(/${p.substr(1)}) instead.`);
+        return path.resolve(process.cwd(), p);
+    }
+    return path.resolve(p);
 }
 
 /**
