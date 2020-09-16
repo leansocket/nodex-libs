@@ -3,6 +3,7 @@ import {
   camelCase,
   camelCaseKeys,
   computeGeoDistance,
+  compareVersion,
   absolutePath,
 } from "../src/util";
 
@@ -27,6 +28,22 @@ test("test camelCaseKeys function", () => {
 
   expect(arr[0]).toBe("getUserInfo");
   expect(arr[1]).toBe("getList");
+});
+
+test("test compareVersion function", () => {
+  let zero = compareVersion("6.3", "6.3");  
+  let lessThan = compareVersion("6.2", "6.3");  
+  let greaterThan = compareVersion("6.5", "6.4");
+  let A = compareVersion("");
+  let B = compareVersion("6.5.6", "6.5");
+  let C = compareVersion("6.5", "6.5.6");
+
+  expect(zero).toBe(0);
+  expect(lessThan).toBe(1);
+  expect(greaterThan).toBe(-1);
+  expect(A).toBe(1);
+  expect(B).toBe(-1);
+  expect(C).toBe(1);
 });
 
 test("test computeGeoDistance function", () => {
