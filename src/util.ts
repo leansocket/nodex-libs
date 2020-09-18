@@ -59,40 +59,38 @@ export const camelCaseKeys = function (obj: object): object {
 /**
  * 对两个版本进行比较
  * * versionA === versionB：返回 0
- * * versionA < versionB： 返回 1
- * * versionA > versionB： 返回 -1
+ * * versionA < versionB： 返回 -1
+ * * versionA > versionB： 返回 1
  * @param {string} versionA 第一个版本号字符串
  * @param {string} versionB 第二个版本号字符串
  * @return {number}
 */
-export const compareVersion = function(versionA = '', versionB = '') : number {
-    if (versionA === '') {
-        return 1;
+export const compareVersion = function(versionA: string, versionB: string) : number {
+    if (typeof versionA !== 'string') {
+        console.warn(`Expected String, got ${typeof versionA}.`)
+    }
+    if (typeof versionB !== 'string') {
+        console.warn(`Expected String, got ${typeof versionB}.`)
     }
 
     const arrA = versionA.split('.');
     const arrB = versionB.split('.');
 
-    try {
-        for (let i = 0; i < Math.max(arrA.length, arrB.length); i++) {
-            if (arrA[i] === undefined) {
-                arrA[i] = '0';
-            }
-            if (arrB[i] === undefined) {
-                arrB[i] = '0';
-            }
-            if (+arrA[i] < +arrB[i]) {
-                return 1;
-            } if (+arrA[i] > +arrB[i]) {
-                return -1;
-            }
+    for (let i = 0; i < Math.max(arrA.length, arrB.length); i++) {
+        if (arrA[i] === undefined) {
+            arrA[i] = '0';
         }
-        return 0;
-    } 
-    catch (e) {
-        console.error(`compare version error: ${versionA}, ${versionB}`);
-        return NaN;
+        if (arrB[i] === undefined) {
+            arrB[i] = '0';
+        }
+        if (+arrA[i] < +arrB[i]) {
+            return -1;
+        } if (+arrA[i] > +arrB[i]) {
+            return 1;
+        }
     }
+    return 0;
+
 }
 
 /**
