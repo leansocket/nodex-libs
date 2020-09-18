@@ -3,13 +3,13 @@ import {
   TimeSpan,
   TimePoint,
   duration,
-  now, 
-  utc, 
+  now,
+  utc,
   span,
   point,
   parse,
   add,
-  sub
+  sub,
 } from '../src/time';
 
 test("test Duration class", () => {
@@ -57,17 +57,13 @@ test("test TimeSpan class", () => {
   expect(end).toBe(1600349497);
   expect(duration.value).toBe(28);
 
-  let timePoint = new TimePoint(1600349470); 
-  let include = timeSpan.include(timePoint);
-  expect(include).toBeTruthy;
+  let timePoint = new TimePoint(1600349470);
+  expect(timeSpan.include(timePoint)).toBeTruthy();
 
   let timePoint2 = new TimePoint(1600349570); 
   let timePoint3 = new TimePoint(1600349000);
-  let expand = timeSpan.expand(timePoint2);
-  let expand2 = timeSpan.expand(timePoint3);
-  console.log(expand.duration.value)
-  expect(expand.duration.value).toBe(101);
-  expect(expand2.duration.value).toBe(497);
+  expect(timeSpan.expand(timePoint2).duration).toEqual(new Duration(101));
+  expect(timeSpan.expand(timePoint3).duration.value).toBe(570);
 })
 
 test("test TimePoint class", () => {
@@ -122,6 +118,9 @@ test("test TimePoint class", () => {
 
   let thisYear = nowTime.thisYear;
   expect(thisYear.duration.value).toBe(31622400000);
+
+  // month == 12 case
+  expect(new TimePoint(+new Date('2020-12-01 00:00:00')).thisMonth).toEqual(new TimeSpan(Date.UTC(2020, 11), Date.UTC(2020, 12)))
 })
 
 test("test duration function", () => {
@@ -130,8 +129,10 @@ test("test duration function", () => {
 })
 
 test("test span function", () => {
-  let sp = span(1600360555, 1600360560);
-  expect(sp.duration.value).toBe(5);
+  expect(span(1600360555, 1600360560).duration.value).toBe(5);
+
+  // timePoint param case
+  expect(span(new TimePoint(1600360555), new TimePoint(1600360560)).duration.value).toBe(5);
 })
 
 test("test point function", () => {
@@ -140,28 +141,47 @@ test("test point function", () => {
 })
 
 test("test utc function", () => {
-  let time = now();
-  let ut = utc(time.dateTime);
-  let ut0 = utc(null);
-  console.log(ut)
-  console.log(ut0)
+  const timePoint = new TimePoint(+new Date())
+  expect(utc(timePoint.UTCTime)).toEqual(timePoint)
+
+  // null value case
+  const dtp = utc(null);
+  const timeSpan = new TimeSpan(dtp.value, Date.now()+1)
+  expect(timeSpan.include(dtp)).toBeTruthy();
 })
 
 test("test parse function", () => {
-  let strTime = "1600360538";
-  let pa = parse(strTime);
-  console.log(pa)
+  expect(parse('2020-01-01 00:00:00')).toEqual(new TimePoint(+new Date('2020-01-01 00:00:00')))
 })
 
 test("test add function", () => {
-  let tp = new TimePoint();
-  let du = new Duration(5000);
-  let ad = add(tp, du);
-  console.log(ad);
+  let tp = new TimePoint(1600360555);
+  let du = new Duration(5);
+  expect(add(tp, du)).toEqual(new TimePoint(1600360560))
 })
 
 test("test sub function", () => {
-  let su = sub(new TimePoint(), new Duration(5000));
-  console.log(su);
+  let tp = new TimePoint(1600360560);
+  let du = new Duration(5);
+  expect(sub(tp, du)).toEqual(new TimePoint(1600360555))
 })
 
+test('test now function', ()  => {
+  const timePoint = now()
+  const timeSpan = new TimeSpan(timePoint.value, Date.now()+1)
+  expect(timeSpan.include(timePoint)).toBeTruthy()
+})
+
+test('test to timePoint', () => {
+  const now = Date.now()
+  const next = now + 10
+  const timePoint = new TimePoint(now)
+  expect(timePoint.to(new TimePoint(next))).toEqual(new TimeSpan(now, next))
+})
+
+test('test from timePoint', () => {
+  const now = Date.now()
+  const prev = now - 10
+  const timePoint = new TimePoint(now)
+  expect(timePoint.from(new TimePoint(prev))).toEqual(new TimeSpan(prev, now))
+})
