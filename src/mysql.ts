@@ -91,7 +91,7 @@ export class Connection {
         if (!calc_sql_found_rows) {
             let results = await this.query(sql);
             return {
-                data: results || [],
+                list: results || [],
                 count: results.length || 0,
             };
         }
