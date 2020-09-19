@@ -17,10 +17,19 @@ export const delay = async function (time: number): Promise<void> {
 }
 
 /**
- * 获取路径p的绝对路径，如果p以 . 开始，返回相对于当前进程cwd的绝对路径。
+ * 获取路径p的绝对路径
+ * * 如果p以 '/' 开始，返回相对于当前进程cwd的绝对路径。
 */
 export const absolutePath = function (p: string) {
-    return p.charAt(0) === '.' ? path.join(process.cwd(), p) : p;
+    const c = p.charAt(0);
+    if (c === '/') {
+        return path.resolve(process.cwd(), p);
+    }
+    if (c === '.') {
+        console.warn(`util.absolutePath(${p}) is deprecated, please use util.absolutePath(/${p.substr(1)}) instead.`);
+        return path.resolve(process.cwd(), p);
+    }
+    return path.resolve(p);
 }
 
 /**
@@ -48,7 +57,46 @@ export const camelCaseKeys = function (obj: object): object {
 };
 
 /**
- * 计算地球上亮点之间的地理距离。
+ * 对两个版本进行比较
+ * * versionA === versionB：返回 0
+ * * versionA < versionB： 返回 1
+ * * versionA > versionB： 返回 -1
+ * @param {string} versionA 第一个版本号字符串
+ * @param {string} versionB 第二个版本号字符串
+ * @return {number}
+*/
+export const compareVersion = function(versionA = '', versionB = '') : number {
+    if (versionA === '') {
+        return 1;
+    }
+
+    const arrA = versionA.split('.');
+    const arrB = versionB.split('.');
+
+    try {
+        for (let i = 0; i < Math.max(arrA.length, arrB.length); i++) {
+            if (arrA[i] === undefined) {
+                arrA[i] = '0';
+            }
+            if (arrB[i] === undefined) {
+                arrB[i] = '0';
+            }
+            if (+arrA[i] < +arrB[i]) {
+                return 1;
+            } if (+arrA[i] > +arrB[i]) {
+                return -1;
+            }
+        }
+        return 0;
+    } 
+    catch (e) {
+        console.error(`compare version error: ${versionA}, ${versionB}`);
+        return NaN;
+    }
+}
+
+/**
+ * 计算地球球面上两个经纬点之间的地理距离。
 */
 export const computeGeoDistance = function (lat1: number, lng1: number, lat2: number, lng2: number): number {
     let sqrt = Math.sqrt;
