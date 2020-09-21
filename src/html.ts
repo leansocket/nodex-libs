@@ -53,7 +53,7 @@ export const decode = async function (res: HttpResponseOptions): Promise<HttpRes
             });
         }
 
-        let str = iconv.decode(res.content, charset);
+        let str = iconv.decode(Buffer.from(res.content), charset);
         return resolve({ 
             status: res.status,
             headers: res.headers, 
