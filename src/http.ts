@@ -111,7 +111,7 @@ export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOpt
         let urlinfo = liburl.parse(optionsOrUrl);
         return {
             hostname: urlinfo.hostname,
-            port: urlinfo.port,
+            port: urlinfo.port || '80',
             path: urlinfo.path,
             safe: isHttps(optionsOrUrl),
         };
