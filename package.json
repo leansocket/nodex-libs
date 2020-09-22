@@ -21,7 +21,6 @@
     "co-body": "^6.0.0",
     "cross-spawn": "^7.0.3",
     "escape-html": "^1.0.3",
-    "fs-extra": "^9.0.1",
     "koa": "2.13.0",
     "koa-router": "^9.4.0",
     "koa2-cors": "^2.0.6",
