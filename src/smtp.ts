@@ -133,7 +133,7 @@ export class Channel {
     /**
      * 发送邮件，参数比send更简洁。
     */
-    public async sendQuickly(to: string, subject: string, content: string, attachments: string[]): Promise<any> {
+    public async sendQuickly(to: string, subject: string, content: string, attachments?: string[]): Promise<any> {
         let mail: MailOptions = {
             from: this.options.user,
             to: to,
