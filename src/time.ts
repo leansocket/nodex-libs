@@ -197,13 +197,9 @@ export class TimeSpan {
      * @returns {TimeSpan} 扩展后的此时间区间对象
     */
     public expand(timePoint: TimePoint): TimeSpan {
-        let tp = timePoint.value;
-        if (this._begin > tp) {
-            this._begin = tp;
-        }
-        if (this._end < tp) {
-            this._end = tp;
-        }
+        const tp = timePoint.value;
+        this._begin = Math.min(this._end, this._begin, tp)
+        this._end = Math.max(this._end, this._begin, tp)
         this._duration = new Duration(this._end - this._begin);
         return this;
     }
@@ -260,6 +256,19 @@ export class TimePoint {
         let minute = now.getMinutes();
         let second = now.getSeconds();
         let ms = now.getMilliseconds();
+        return { year, month, date, day, hour, minute, second, ms };
+    }
+
+    public get UTCTime(): DateTime {
+        const now = this.now;
+        let year = now.getUTCFullYear();
+        let month = now.getUTCMonth() + 1;
+        let date = now.getUTCDate();
+        let day = now.getUTCDay();
+        let hour = now.getUTCHours();
+        let minute = now.getUTCMinutes();
+        let second = now.getUTCSeconds();
+        let ms = now.getUTCMilliseconds();
         return { year, month, date, day, hour, minute, second, ms };
     }
 
@@ -403,7 +412,7 @@ export class TimePoint {
         let year = now.getFullYear();
         let month = now.getMonth();
 
-        let beg = Date.UTC(year, month);
+        let begin = Date.UTC(year, month);
 
         month = month + 1;
         if (month >= 12) {
@@ -413,7 +422,7 @@ export class TimePoint {
 
         let end = Date.UTC(year, month);
 
-        return new TimeSpan(beg, end);
+        return new TimeSpan(begin, end);
     }
 
     /**

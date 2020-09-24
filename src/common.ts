@@ -16,7 +16,7 @@ export const error = function (name: string, message: string): Error {
  * * err是一个Error实例，返回true。
  * * ret.result !== 'ok', 返回true。
 */
-export const checkError = function (err: Error, ret: any): boolean {
+export const checkError = function (err: Error, ret?: any): boolean {
     if (err) {
         return true;
     }
