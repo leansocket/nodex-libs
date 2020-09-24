@@ -1,4 +1,4 @@
-# nodex-libss
+# nodex-libs
 
 nodex-libs是一个基于nodejs的服务端程序库。其中包含在实际工程中可用的方法。可以简化nodejs程序开发。
 
