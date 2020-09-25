@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A nodejs library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -46,5 +46,9 @@
     "library"
   ],
   "author": "Cheelin Cheng",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leansocket/nodex-libs.git"
+  },
   "license": "MIT"
 }
