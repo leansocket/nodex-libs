@@ -1,6 +1,7 @@
 import { isHttps, combineUrlAndParams, getRequestOptions, request, get, post, call, rpc } from "../src/http";
 import Koa from 'koa';
 import body from "../src/body";
+import { delay } from "../src/util";
 
 const bodyParse = body({})
 
@@ -77,6 +78,27 @@ test('Test request function', async () => {
         })
         server.close()
     }
+})
+
+test('Test request timeout', async () => {
+    const app = new Koa();
+    const server = app.listen()
+    const address: any = server.address()
+    const host = address.host
+    const port = address.port
+    app.use(async function (ctx){
+        await delay(2);
+        ctx.body = 'ok'
+    })
+    const res = await request({
+        method: 'GET',
+        hostname: host,
+        port: port,
+        path: '/',
+        timeout: 1000
+    },{})
+    expect(res.status).toBe(408)
+    server.close()
 })
 
 test('Test get function', async () => {
