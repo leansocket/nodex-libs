@@ -46,6 +46,10 @@ export interface HttpRequestOptions {
      * 请求资源路径，形如: /user/info?id=1
     */
     path?: string;
+    /**
+     * 超时时间，单位毫秒，默认5000
+     */
+    timeout?: number
 }
 
 /**
@@ -126,6 +130,7 @@ export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOpt
 export const request = async function (options: HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
     options = options || {};
     options.headers = options.headers || {};
+    options.timeout = options.timeout || 5000;
 
     data = data || {};
 
@@ -160,6 +165,11 @@ export const request = async function (options: HttpRequestOptions, data: any): 
                 return reject(err);
             });
 
+            req.on('timeout', () => {
+                req.abort();
+                return resolve(resp({ status: 408, headers: {}, content: {} }))
+            })
+
             if (options.method === 'POST') {
                 req.write(content_seq);
             }
@@ -169,6 +179,10 @@ export const request = async function (options: HttpRequestOptions, data: any): 
     }
 
     let resp = async function (res): Promise<HttpResponseOptions> {
+        if (res && res.status && res.headers && res.content) {
+            return res;
+        }
+
         return await new Promise(function (resolve, reject) {
             let body = [];
 
