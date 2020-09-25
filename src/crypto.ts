@@ -1,4 +1,4 @@
-let crypto = require('crypto');
+import crypto from 'crypto';
 
 /**
  * 用指定hash算法计算data的hash编码。

@@ -1,7 +1,7 @@
 
-let zlib = require('zlib');
-let iconv = require('iconv-lite');
-let escapeHtml = require('escape-html');
+import zlib from 'zlib';
+import iconv from 'iconv-lite';
+import escapeHtml from 'escape-html';
 
 /**
  * HTTP响应数据

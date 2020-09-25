@@ -1,35 +1,19 @@
-const common = require('./common');
+export * from './common';
 
-const load = function(name){
-    let m = null;
-    return function(){
-        if(m !== null && m !== undefined){
-            return m;
-        }
-        m = require(`./${name}`);
-        return m;
-    };
-};
+export * as log from './log';
+export * as fmt from './fmt';
+export * as time from './time';
+export * as schedule from './schedule';
+export * as spawn from './spawn';
+export * as flakes from './flakes';
 
-const modules = [
-    'log', 'fmt', 'time', 'schedule', 'spawn', 'flakes',
-    'http', 'smtp', 
-    'mysql',
-    'crypto', 'authes', 'html',
-    'util',
-];
+export * as http from './http';
+export * as body from './body';
+export * as smtp from './smtp';
+export * as mysql from './mysql';
 
-for(let i = 0; i < modules.length; i++){
-    let name = modules[i];
-    Object.defineProperty(module.exports, name, {
-        get: load(name)
-    });
-}
-Object.keys(common).forEach(name=>{
-    let p = common[name];
-    Object.defineProperty(module.exports, name, {
-        get: ()=>{
-            return p;
-        }
-    });
-})
+export * as crypto from './crypto';
+export * as authes from './authes';
+export * as html from './html';
+
+export * as util from './util';

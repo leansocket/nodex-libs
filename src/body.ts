@@ -6,7 +6,7 @@ const symbolUnparsed = Symbol.for("unparsedBody");
 
 let upload = null;
 
-export default function (opts) {
+export default function (opts?: any) {
   opts = opts || {};
   opts.onError = "onError" in opts ? opts.onError : false;
   opts.patchNode = "patchNode" in opts ? opts.patchNode : false;

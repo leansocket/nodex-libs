@@ -1,4 +1,4 @@
-let mysql = require("mysql");
+import mysql from "mysql";
 
 /**
  * mysql选项
