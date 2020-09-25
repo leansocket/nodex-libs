@@ -1,4 +1,4 @@
-
+import path from 'path';
 import { Mail, createTransport } from 'nodemailer';
 
 /**
@@ -143,8 +143,6 @@ export class Channel {
         };
 
         if (!!attachments && attachments.length > 0) {
-            let path = require("path");
-
             let attachmentList: MailAttachment[] = [];
             for (let i = 0; i < attachments.length; i++) {
                 let filePath = attachments[i];

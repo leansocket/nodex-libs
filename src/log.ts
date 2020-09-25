@@ -1,5 +1,5 @@
 
-const chalk = require('chalk');
+import chalk from 'chalk';
 
 /**
  * 初始化日志模块

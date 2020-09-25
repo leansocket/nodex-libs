@@ -1,4 +1,4 @@
-const path = require('path');
+import path from 'path';
 
 /**
  * 延迟，一般用法为:
