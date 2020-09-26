@@ -39,7 +39,7 @@ export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOpt
 export const request = async function (options: HttpRequestOptions, data: any): Promise<HttpResponseOptions> {
     options = options || {};
     options.headers = options.headers || {};
-    options.timeout = options.timeout || 5000;
+    options.timeout = options.timeout || undefined;
 
     data = data || {};
 

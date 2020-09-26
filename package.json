@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "2.1.1",
+  "version": "2.1.6",
   "description": "A nodejs library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -21,7 +21,7 @@
     "co-body": "^6.0.0",
     "cross-spawn": "^7.0.3",
     "escape-html": "^1.0.3",
-    "koa": "2.13.0",
+    "koa": "2.11.0",
     "koa-router": "^9.4.0",
     "koa2-cors": "^2.0.6",
     "multer": "^1.4.2",
