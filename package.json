@@ -5,8 +5,8 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "./node_modules/.bin/tsc -p ./tsconfig.json",
-    "doc": "node ./mkdoc.js",
+    "build": "rimraf ./lib && tsc -p ./tsconfig.json",
+    "doc": "rimraf ./doc && node ./mkdoc.js",
     "prepublishOnly": "npm run build && npm run doc",
     "test": "jest --runInBand --detectOpenHandles"
   },
@@ -34,6 +34,7 @@
     "@types/koa": "^2.11.4",
     "@types/node": "^14.6.4",
     "jest": "^26.4.2",
+    "rimraf": "^3.0.2",
     "supertest": "^4.0.2",
     "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
