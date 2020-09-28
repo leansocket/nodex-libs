@@ -11,7 +11,6 @@ const options = {
     experimentalDecorators: true,
     exclude: '**/node_modules/**/*.*',
     out: path.resolve(__dirname, `./doc/${package.name.replace(/@\w+\//g, '')}/${package.version}`),
-
 }
 
 const app = new typedoc.Application();
