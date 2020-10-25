@@ -1,4 +1,5 @@
 import query from 'querystring';
+import { md5 } from '../crypto';
 
 /**
  * HTTP头结构
@@ -64,14 +65,14 @@ export interface HttpResponseOptions {
 /**
  * 判断url是否是https
 */
-export const isHttps = function (url: string): boolean {
+export function isHttps(url: string): boolean {
     return url.indexOf('https://') === 0;
 };
 
 /**
  * 将data对象的数据以key=value的方式合并到url之后，并返回合并之后的url。
 */
-export const combineUrlAndParams = function (url: string, data: query.ParsedUrlQueryInput): string {
+export function combineUrlAndParams(url: string, data: query.ParsedUrlQueryInput): string {
     if (typeof (data) !== 'object' || data === null) {
         return url;
     }
@@ -94,3 +95,16 @@ export const combineUrlAndParams = function (url: string, data: query.ParsedUrlQ
     }
     return ret;
 };
+
+/**
+ * 对http请求数据签名，内部采用MD5算法生成签名指纹。
+ * @param {object} data 用于签名的http请求数据。
+ * @param {string} secret 用于签名的密钥。
+ * @returns {string} 签名指纹
+ */
+export function sign(data: object, secret: string): string {
+    const str = Object.keys(data).sort().map(
+        key => `${key}=${data[key]}`
+    ).join('&');
+    return md5(str + secret);
+}
