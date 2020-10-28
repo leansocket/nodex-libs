@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "2.1.7",
+  "version": "2.1.9",
   "description": "A nodejs library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -26,8 +26,7 @@
     "koa2-cors": "^2.0.6",
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
-    "nodemailer": "^6.4.11",
-    "tslib": "^2.0.1"
+    "nodemailer": "^6.4.11"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
