@@ -7,6 +7,7 @@ import path from 'path';
 import koa from 'koa';
 import koaRouter from 'koa-router';
 import koaCors from 'koa2-cors';
+import koaStaticRouter from 'koa-static-router';
 import koaBody from '../body';
 
 import { error } from '../common';
@@ -192,9 +193,8 @@ export const webapp = function (args: WebAppArgs): WebApp {
         }
     }
 
-    app.static = function (path: string, target: string) {
-        throw error('ERR_TODO',
-            'this feature is coming soon.');
+    app.static = function (...args) {
+        app.use(koaStaticRouter(args))
     };
 
     app.route = function (func: (router: koaRouter) => void): void {
