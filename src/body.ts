@@ -95,7 +95,7 @@ const getBodyPromise = function (ctx, opts) {
       returnRawBody: opts.includeUnparsed,
     });
   } else if (opts.multipart && ctx.is("multipart")) {
-    return createMultipartPromise(ctx, opts.multer);
+    return createMultipartPromise(ctx, opts);
   } else {
     return cobody.text(ctx, {
       encoding: opts.encoding,
