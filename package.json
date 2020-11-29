@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "A nodejs library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

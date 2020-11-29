@@ -20,7 +20,14 @@ export interface CommonOperationPacket {
  * makeCOP(null, ret);
  * ```
 */
-export const make = function (arg0: any, arg1?: any) : CommonOperationPacket {
+export const make = function (arg0: any, arg1?: any): CommonOperationPacket {
+    if (arg0 === undefined && arg1 === undefined) {
+        let packet: any = {};
+        packet.result = 'ERR_INVALID_COPDATA';
+        packet.data = 'data of COP is invalid.';
+        return packet;
+    }
+
     if (arg0 instanceof Error) {
         let packet: any = {};
         if (!arg0.name) {
@@ -46,24 +53,16 @@ export const make = function (arg0: any, arg1?: any) : CommonOperationPacket {
     }
 
     let data = undefined;
-    if (arg0 !== undefined && arg0 !== null) {
+    if (arg0 !== undefined) {
         data = arg0;
     }
-    else if (arg1 !== undefined && arg1 !== null) {
+    if (arg1 !== undefined) {
         data = arg1;
     }
     if (data !== undefined) {
         let packet: any = {};
         packet.result = 'ok';
         packet.data = data;
-        return packet;
-    }
-
-    // fallback
-    {
-        let packet: any = {};
-        packet.result = 'ERR_INVALID_COPDATA';
-        packet.data = 'data of COP is invalid.';
         return packet;
     }
 };
