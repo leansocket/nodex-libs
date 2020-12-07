@@ -84,9 +84,9 @@ mysql db
 
 ```js
 const libs = require('nodex-libs');
-const db = libs.db;
+const mysql = libs.mysql;
 
-db.init({
+mysql.init({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
@@ -95,22 +95,22 @@ db.init({
 
 {
     let sql = 'select * from test';
-    let list = await db.query(sql);
+    let list = await mysql.query(sql);
     console.log(JSON.stringify(list));
 }
 
 {
     let sql = 'delete from test where id = 0';
-    let ret = await db.query(sql);
+    let ret = await mysql.query(sql);
     console.log(ret.affectedRows);
 }
 
 // transaction
 do
 {
-    let tx = db.transaction();
+    let tx = mysql.transaction();
     
-    let ret = await tx.query('update test set status = 0 where id = 10';
+    let ret = await tx.query('update test set status = 0 where id = 10');
     if(ret.affectedRows !== 1){
         tx.rollback();
         tx.release();
@@ -128,6 +128,25 @@ do
     tx.release();
 }
 while(0);
+```
+
+MongoDB
+
+```js
+const libs = require('nodex-libs');
+const mongodb = libs.mongodb;
+
+const mongoInstance = mongodb.init({
+    uri: 'mongodb://127.0.0.1：27017',
+    database: 'test',
+    options: {
+        useUnifiedTopology: true,
+        useNewUrlParser: true
+    }
+})
+
+const result = await mongoInstance.query(db => db.collection('user').find().toArray());
+console.log(result);
 ```
 
 flakes unique ID:
