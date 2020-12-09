@@ -13,7 +13,7 @@ export interface MongoOptions extends MongoClientOptions {
     database: string;
 }
 
-export class Mongodb {
+export class Mongo {
 
     private _options: MongoOptions;
 
@@ -98,18 +98,18 @@ export class Mongodb {
  * 初始化一个MongoDB实例
  * @param options
  */
-export const init = async (options: MongoOptions) => new Mongodb(options).connect();
+export const init = async (options: MongoOptions) => new Mongo(options).connect();
 
 /**
  * 连接MongoDB
- * @param mongodbInstance
+ * @param mongo
  */
-export const connect = async (mongodbInstance: Mongodb) => mongodbInstance.connect();
+export const connect = async (mongo: Mongo) => mongo.connect();
 
 /**
  * 关闭MongoDB连接
- * @param mongodbInstance
+ * @param mongo
  */
-export const close = async (mongodbInstance: Mongodb) => mongodbInstance.close();
+export const close = async (mongo: Mongo) => mongo.close();
 
 
