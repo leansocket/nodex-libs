@@ -1,4 +1,4 @@
-import { Mongodb } from "../src/mongodb";
+import { init } from "../src/mongodb";
 
 test('Test Mongodb class', async (done) => {
     const mongoOptions = {
@@ -8,10 +8,7 @@ test('Test Mongodb class', async (done) => {
         useNewUrlParser: true
     }
 
-    new Mongodb(mongoOptions, async function (client) {
-        console.log('client', client)
-        const data = await client.query(db => db.collection('users').find().toArray());
-        console.log(data);
-        done()
-    });
+    const mongoInstance = await init(mongoOptions);
+    const data = await mongoInstance.query(db => db.collection('users').find().toArray())
+    console.log(data)
 })

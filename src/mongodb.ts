@@ -1,6 +1,7 @@
-import { MongoClient, MongoClientOptions } from 'mongodb';
+import { MongoClient, MongoClientOptions, Db, MongoError } from 'mongodb';
 import { error } from './common';
 
+export * from 'bson';
 export interface MongoOptions extends MongoClientOptions {
     /**
      * 数据库连接地址
@@ -18,31 +19,34 @@ export class Mongodb {
 
     private _client: MongoClient;
 
-    constructor(options: MongoOptions, connectionCallback = (...args) => {}) {
+    constructor(options: MongoOptions) {
         if (!options.uri) {
-            throw error('ERR_MONGODB_CONNECTION', 'Mongodb connection uri must be required.')
+            throw error('ERR_MONGODB_CONNECTION', 'Mongodb connection uri must be required.');
         }
         if (!options.database) {
-            throw error('ERR_MONGODB_DATABASE', 'Mongodb database must be set.')
+            throw error('ERR_MONGODB_DATABASE', 'Mongodb database must be set.');
         }
         this._options = options;
-        this.connect().then(connectionCallback.bind(null, this));
     }
 
     /**
-     * 执行MongoDB查询方法
-     * @param queryConditionsFunction
+     * MongoDB查询方法
+     * @param queryConditionsFunction 查询语句方法
+     * @param errorCallbackFunction 错误回调
      */
-    public async query(queryConditionsFunction): Promise<any> {
-        const { _client, _options } = this
+    public async query(queryConditionsFunction: (db: Db) => Promise<any>, errorCallbackFunction?: (error: MongoError) => any): Promise<any> {
+        const { _client, _options } = this;
         if (!_client || !_options) {
             throw error('ERR_MONGODB_INIT', 'Mongodb is not init.')
         }
-        if (!queryConditionsFunction) return;
-        const db = _client.db(_options.database)
-        return queryConditionsFunction(db);
+        if (!queryConditionsFunction) { return; }
+        const db = _client.db(_options.database);
+        return queryConditionsFunction(db).catch(errorCallbackFunction);
     }
 
+    /**
+     * 连接MongoDB
+     */
     public async connect() {
         if (!this._client) {
             const { uri, database, ...options } = this._options;
@@ -50,12 +54,13 @@ export class Mongodb {
         }
         if (!this._client.isConnected()) {
             try {
-                return this._client.connect();
+                await this._client.connect();
             } catch (err) {
                 console.error(err);
-                throw error('ERR_MONGODB_CONNECTION', err.message)
+                throw error('ERR_MONGODB_CONNECTION', err.message);
             }
         }
+        return this;
     }
 
     /**
@@ -82,10 +87,10 @@ export class Mongodb {
     }
 
     /**
-     * 判断当前是否已连接
+     * 获取当前连接状态
      */
-    public isConnected() {
-        return this._client.isConnected()
+    public get isConnected() {
+        return this._client.isConnected();
     }
 }
 
@@ -93,18 +98,18 @@ export class Mongodb {
  * 初始化一个MongoDB实例
  * @param options
  */
-export const init = (options: MongoOptions) => new Mongodb(options);
+export const init = async (options: MongoOptions) => new Mongodb(options).connect();
 
 /**
  * 连接MongoDB
  * @param mongodbInstance
  */
-export const connect = (mongodbInstance: Mongodb) => mongodbInstance.connect();
+export const connect = async (mongodbInstance: Mongodb) => mongodbInstance.connect();
 
 /**
  * 关闭MongoDB连接
  * @param mongodbInstance
  */
-export const close = (mongodbInstance: Mongodb) => mongodbInstance.close();
+export const close = async (mongodbInstance: Mongodb) => mongodbInstance.close();
 
 
