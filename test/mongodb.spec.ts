@@ -1,13 +1,17 @@
 import { Mongodb } from "../src/mongodb";
 
-test('Test Mongodb class', async () => {
+test('Test Mongodb class', async (done) => {
     const mongoOptions = {
-        uri: 'mongodb://127.0.0.1：27017',
+        uri: 'mongodb://127.0.0.1:27017',
         database: 'test',
-        options: { useUnifiedTopology: true, useNewUrlParser: true }
+        useUnifiedTopology: true,
+        useNewUrlParser: true
     }
 
-    const mongoInstance = new Mongodb(mongoOptions);
-    const data = await mongoInstance.query(db => db.collection('user').find().toArray());
-    console.log(data);
+    new Mongodb(mongoOptions, async function (client) {
+        console.log('client', client)
+        const data = await client.query(db => db.collection('users').find().toArray());
+        console.log(data);
+        done()
+    });
 })

@@ -1,7 +1,7 @@
 import { MongoClient, MongoClientOptions } from 'mongodb';
 import { error } from './common';
 
-export type MongoOptions = {
+export interface MongoOptions extends MongoClientOptions {
     /**
      * 数据库连接地址
      */
@@ -10,28 +10,23 @@ export type MongoOptions = {
      * 数据库名称
      */
     database: string;
-    /**
-     * 数据库配置
-     */
-    options: MongoClientOptions;
 }
 
 export class Mongodb {
 
-    private readonly _mongoOptions: MongoOptions;
+    private _options: MongoOptions;
 
     private _client: MongoClient;
 
-    constructor(mongoOptions: MongoOptions, connectionCallback = () => {}) {
-        const { uri, database } = mongoOptions;
-        if (!uri) {
+    constructor(options: MongoOptions, connectionCallback = (...args) => {}) {
+        if (!options.uri) {
             throw error('ERR_MONGODB_CONNECTION', 'Mongodb connection uri must be required.')
         }
-        if (!database) {
+        if (!options.database) {
             throw error('ERR_MONGODB_DATABASE', 'Mongodb database must be set.')
         }
-        this._mongoOptions = mongoOptions;
-        this.connect().then(connectionCallback);
+        this._options = options;
+        this.connect().then(connectionCallback.bind(null, this));
     }
 
     /**
@@ -39,18 +34,18 @@ export class Mongodb {
      * @param queryConditionsFunction
      */
     public async query(queryConditionsFunction): Promise<any> {
-        const { _client, _mongoOptions } = this
-        if (!_client || !_mongoOptions) {
+        const { _client, _options } = this
+        if (!_client || !_options) {
             throw error('ERR_MONGODB_INIT', 'Mongodb is not init.')
         }
         if (!queryConditionsFunction) return;
-        const db = _client.db(_mongoOptions.database)
+        const db = _client.db(_options.database)
         return queryConditionsFunction(db);
     }
 
     public async connect() {
         if (!this._client) {
-            const { uri, options } = this._mongoOptions;
+            const { uri, database, ...options } = this._options;
             this._client = new MongoClient(uri, options);
         }
         if (!this._client.isConnected()) {
@@ -75,14 +70,14 @@ export class Mongodb {
     /**
      * 获取当前连接参数
      */
-    public getMongoOptions() {
-        return this._mongoOptions;
+    public get options() {
+        return this._options;
     }
 
     /**
      * 获取当前客户端
      */
-    public getMongoClient() {
+    public get client() {
         return this._client;
     }
 
@@ -96,9 +91,9 @@ export class Mongodb {
 
 /**
  * 初始化一个MongoDB实例
- * @param mongoOptions
+ * @param options
  */
-export const init = (mongoOptions: MongoOptions) => new Mongodb(mongoOptions);
+export const init = (options: MongoOptions) => new Mongodb(options);
 
 /**
  * 连接MongoDB
