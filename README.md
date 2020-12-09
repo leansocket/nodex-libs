@@ -134,15 +134,13 @@ MongoDB
 
 ```js
 const libs = require('nodex-libs');
-const mongodb = libs.mongodb;
+const mongo = libs.mongo;
 
-const mongoInstance = mongodb.init({
-    uri: 'mongodb://127.0.0.1：27017',
+const mongoInstance = await mongo.init({
+    uri: 'mongodb://127.0.0.1:27017',
     database: 'test',
-    options: {
-        useUnifiedTopology: true,
-        useNewUrlParser: true
-    }
+    useUnifiedTopology: true,
+    useNewUrlParser: true
 })
 
 const result = await mongoInstance.query(db => db.collection('user').find().toArray());
