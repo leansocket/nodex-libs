@@ -1,4 +1,4 @@
-import { MongoClient, MongoClientOptions, Db, MongoError } from 'mongodb';
+import { MongoClient, MongoClientOptions, Db } from 'mongodb';
 import { error } from './common';
 
 export * from 'bson';
@@ -34,14 +34,14 @@ export class Mongo {
      * @param queryConditionsFunction 查询语句方法
      * @param errorCallbackFunction 错误回调
      */
-    public async query(queryConditionsFunction: (db: Db) => Promise<any>, errorCallbackFunction?: (error: MongoError) => any): Promise<any> {
+    public async query(queryConditionsFunction: (db: Db) => Promise<any>): Promise<any> {
         const { _client, _options } = this;
         if (!_client || !_options) {
             throw error('ERR_MONGODB_INIT', 'Mongodb is not init.')
         }
         if (!queryConditionsFunction) { return; }
         const db = _client.db(_options.database);
-        return queryConditionsFunction(db).catch(errorCallbackFunction);
+        return queryConditionsFunction(db);
     }
 
     /**
@@ -98,7 +98,7 @@ export class Mongo {
  * 初始化一个MongoDB实例
  * @param options
  */
-export const init = async (options: MongoOptions) => new Mongo(options).connect();
+export const init = async (options: MongoOptions) => new Mongo(options);
 
 /**
  * 连接MongoDB

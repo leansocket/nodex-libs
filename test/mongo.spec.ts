@@ -9,6 +9,7 @@ test('Test Mongo class', async (done) => {
     }
 
     const mongo = await init(options);
+    await mongo.connect()
     const data = await mongo.query(db => db.collection('users').find().toArray());
     console.log(data);
 })

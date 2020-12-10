@@ -142,6 +142,7 @@ const mongoInstance = await mongo.init({
     useUnifiedTopology: true,
     useNewUrlParser: true
 })
+await mongoInstance.connect();
 
 const result = await mongoInstance.query(db => db.collection('user').find().toArray());
 console.log(result);
