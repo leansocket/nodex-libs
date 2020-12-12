@@ -60,7 +60,6 @@ export class Mongo {
                 throw error('ERR_MONGODB_CONNECTION', err.message);
             }
         }
-        return this;
     }
 
     /**
@@ -93,23 +92,3 @@ export class Mongo {
         return this._client.isConnected();
     }
 }
-
-/**
- * 初始化一个MongoDB实例
- * @param options
- */
-export const init = async (options: MongoOptions) => new Mongo(options);
-
-/**
- * 连接MongoDB
- * @param mongo
- */
-export const connect = async (mongo: Mongo) => mongo.connect();
-
-/**
- * 关闭MongoDB连接
- * @param mongo
- */
-export const close = async (mongo: Mongo) => mongo.close();
-
-
