@@ -1,93 +1,51 @@
 
-import { EventEmitter } from 'events';
-import spawn from 'cross-spawn';
+import crossSpawn from 'cross-spawn';
 
 /**
  * 子进程选项
 */
-export interface SpawnedProcessOptions {
+export interface SpawnOptions {
     /**
      * 子进程工作目录，默认为当前进程的工作目录。
     */
-    cwd: string;
+    cwd?: string;
     /**
      * 子进程环境变量，默认为当前进程的环境变量。
     */
-    env: any;
+    env?: any;
 }
 
-export type SpawnedProcessCallback = (exitCode: string, stdoutStr: string, stderrStr: string) => void;
+/**
+ * 子进程执行结果
+ */
+export interface SpawnResult {
+    /**
+     * 退出值，一般无错误发生就为0，具体需子进程确定。
+     */
+    exitcode: number;
+    /**
+     * 标准输出
+     */
+    stdout: string;
+    /**
+     * 标准错误
+     */
+    stderr: string;
+}
 
 /**
- * 带命令缓冲队列的跨平台子进程。
- * * 将命令post到子进程，内部会自动启动进程执行，执行完毕通过回调函数通知任务执行方。
- * * post只是将一个任务加入缓冲队列就会返回，并不会等待任务结束。
+ * 执行一条命令
 */
-export class SpawnedProcess extends EventEmitter {
-    public cwd: string;
-    public env: any;
+export async function exec(command: string, args: string[], options?: SpawnOptions): Promise<SpawnResult> {
+    options = options || {};
 
-    private _taskQueue = [];
-    private _processor = null;
-
-    constructor(options: SpawnedProcessOptions) {
-        super();
-        this.cwd = options.cwd || process.cwd();
-        this.env = options.env || process.env;
-    }
-
-    /**
-     * 执行一条命令。
-     * * post只是将命令及其参数放入缓冲队列，并不会等待任务执行结束。
-     * * 任务执行结束后，会通过回调通知调用方。
-     * @param {string} command 任务命令
-     * @param {string[]} options 任务选项参数
-     * @param {SpawnedProcessCallback} callback 任务完成回调函数
-     * @returns {SpawnedProcess} 子进程本身，方便链式调用。
-    */
-    public post(command: string, options: string[], callback: SpawnedProcessCallback): SpawnedProcess {
-        if (!command) {
-            return;
-        }
-
-        options = options || []
-        options = options.filter(o => !!o);
-
-
-        this._taskQueue.push({ command, options, callback });
-
-        this._run();
-
-        return this;
-    }
-
-    private _run() {
-        if (!this._taskQueue.length || this._processor) {
-            return;
-        }
-
-        const task = this._taskQueue.shift();
-
+    return new Promise((resolve, reject) => {
         const stdout = [];
         const stderr = [];
 
-        const complete = (exitCode) => {
-            delete this._processor;
-
-            const stdoutStr = stdout.length > 0 ? Buffer.concat(stdout).toString('utf-8') : '';
-            const stderrStr = stderr.length > 0 ? Buffer.concat(stderr).toString('utf-8') : '';
-            if (task.callback) {
-                task.callback(exitCode, stdoutStr, stderrStr);
-            }
-
-            this.emit('out', exitCode, stdoutStr, stderrStr);
-
-            process.nextTick(this._run.bind(this));
-        }
-
-        let spawned = spawn(task.command, task.options, {
-            cwd: this.cwd,
-            env: this.env
+        const spawned = crossSpawn(command, args, {
+            cwd: options.cwd || process.cwd(),
+            env: options.env || process.env,
         });
         spawned.stdout.on('data', (data) => {
             stdout.push(data);
@@ -96,35 +54,24 @@ export class SpawnedProcess extends EventEmitter {
             stderr.push(data);
         });
         spawned.on('error', (err) => {
-            stderr.push(Buffer.from(err.stack, 'ascii'));
+            reject(err);
         });
-        spawned.on('close', (exitCode) => {
-            complete(exitCode);
+        spawned.on('close', (exitcode) => {
+            const stdoutStr = stdout.length > 0 ? Buffer.concat(stdout).toString('utf-8') : '';
+            const stderrStr = stderr.length > 0 ? Buffer.concat(stderr).toString('utf-8') : '';
+            resolve({
+                stdout: stdoutStr,
+                stderr: stderrStr,
+                exitcode: exitcode,
+            });
         });
-
-        this._processor = spawned;
-    }
-};
-
-/**
- * 执行一条命令
-*/
-export function exec(command, options) {
-    return spawn(command, options);
+    });
 }
 
 /**
  * 同步执行一调命令
 */
-export function execSync(command, options) {
-    return spawn.sync(command, options);
+export function execSync(command, args) {
+    return crossSpawn.sync(command, args);
 }
 
-/**
- * 启动一个带任务缓冲的子进程。
- * @param {SpawnedProcessOptions} options 子进程选项
- * @returns {SpawnedProcess} 子进程对象
- */
-export function create(options: SpawnedProcessOptions) {
-    return new SpawnedProcess(options);
-}

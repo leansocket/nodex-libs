@@ -114,6 +114,7 @@ test("test TimePoint class", () => {
   expect(thisWeek.duration.value).toBe(604800);
 
   let thisMonth = nowTime.thisMonth;
+  
   expect(thisMonth.duration.value).toBe(2592000000);
 
   let thisYear = nowTime.thisYear;
