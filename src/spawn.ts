@@ -5,7 +5,7 @@ import spawn from 'cross-spawn';
 /**
  * 子进程选项
 */
-export type  SpawnedProcessOptions = {
+export interface SpawnedProcessOptions {
     /**
      * 子进程工作目录，默认为当前进程的工作目录。
     */
@@ -16,7 +16,7 @@ export type  SpawnedProcessOptions = {
     env: any;
 }
 
-export type SpawnedProcessCallback = (exitCode:string, stdoutStr: string, stderrStr: string)=>void;
+export type SpawnedProcessCallback = (exitCode: string, stdoutStr: string, stderrStr: string) => void;
 
 /**
  * 带命令缓冲队列的跨平台子进程。
@@ -32,7 +32,6 @@ export class SpawnedProcess extends EventEmitter {
 
     constructor(options: SpawnedProcessOptions) {
         super();
-
         this.cwd = options.cwd || process.cwd();
         this.env = options.env || process.env;
     }
@@ -46,45 +45,46 @@ export class SpawnedProcess extends EventEmitter {
      * @param {SpawnedProcessCallback} callback 任务完成回调函数
      * @returns {SpawnedProcess} 子进程本身，方便链式调用。
     */
-    public post(command:string, options:string[], callback:SpawnedProcessCallback) : SpawnedProcess {
-        if(!command){
+    public post(command: string, options: string[], callback: SpawnedProcessCallback): SpawnedProcess {
+        if (!command) {
             return;
         }
 
         options = options || []
         options = options.filter(o => !!o);
 
-        this._taskQueue.push({command, options, callback});
-        
+
+        this._taskQueue.push({ command, options, callback });
+
         this._run();
-    
+
         return this;
     }
 
     private _run() {
-        if(!this._taskQueue.length || this._processor) {
+        if (!this._taskQueue.length || this._processor) {
             return;
         }
-    
-        let task = this._taskQueue.shift();
-    
-        let stdout = [];
-        let stderr = [];
-    
-        let complete = (exitCode) => {
+
+        const task = this._taskQueue.shift();
+
+        const stdout = [];
+        const stderr = [];
+
+        const complete = (exitCode) => {
             delete this._processor;
-    
-            let stdoutStr = stdout.length > 0 ? Buffer.concat(stdout).toString('utf-8') : '';
-            let stderrStr = stderr.length > 0 ? Buffer.concat(stderr).toString('utf-8') : '';
-            if(task.callback) {
+
+            const stdoutStr = stdout.length > 0 ? Buffer.concat(stdout).toString('utf-8') : '';
+            const stderrStr = stderr.length > 0 ? Buffer.concat(stderr).toString('utf-8') : '';
+            if (task.callback) {
                 task.callback(exitCode, stdoutStr, stderrStr);
             }
 
             this.emit('out', exitCode, stdoutStr, stderrStr);
-    
+
             process.nextTick(this._run.bind(this));
         }
-    
+
         let spawned = spawn(task.command, task.options, {
             cwd: this.cwd,
             env: this.env
@@ -97,11 +97,11 @@ export class SpawnedProcess extends EventEmitter {
         });
         spawned.on('error', (err) => {
             stderr.push(Buffer.from(err.stack, 'ascii'));
-         });
+        });
         spawned.on('close', (exitCode) => {
             complete(exitCode);
         });
-    
+
         this._processor = spawned;
     }
 };
@@ -109,14 +109,14 @@ export class SpawnedProcess extends EventEmitter {
 /**
  * 执行一条命令
 */
-export const exec = function(command, options) {
+export function exec(command, options) {
     return spawn(command, options);
 }
 
 /**
  * 同步执行一调命令
 */
-export const execSync = function(command, options) {
+export function execSync(command, options) {
     return spawn.sync(command, options);
 }
 
@@ -125,6 +125,6 @@ export const execSync = function(command, options) {
  * @param {SpawnedProcessOptions} options 子进程选项
  * @returns {SpawnedProcess} 子进程对象
  */
-export const spawnProcess = function(options: SpawnedProcessOptions) {
+export function create(options: SpawnedProcessOptions) {
     return new SpawnedProcess(options);
 }
