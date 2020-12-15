@@ -31,16 +31,16 @@ export class Mongo {
 
     /**
      * MongoDB查询方法
-     * @param query 查询语句方法
+     * @param condition 查询语句方法
      */
-    public async query(query: (db: Db) => Promise<any>): Promise<any> {
+    public async query(condition: (db: Db) => Promise<any>): Promise<any> {
         const { _client, _options } = this;
         if (!_client || !_options) {
             throw error('ERR_MONGODB_INIT', 'Mongodb is not init.')
         }
-        if (!query) { return; }
+        if (!condition) { return; }
         const db = _client.db(_options.database);
-        return query(db);
+        return condition(db);
     }
 
     /**
