@@ -31,17 +31,16 @@ export class Mongo {
 
     /**
      * MongoDB查询方法
-     * @param queryConditionsFunction 查询语句方法
-     * @param errorCallbackFunction 错误回调
+     * @param query 查询语句方法
      */
-    public async query(queryConditionsFunction: (db: Db) => Promise<any>): Promise<any> {
+    public async query(query: (db: Db) => Promise<any>): Promise<any> {
         const { _client, _options } = this;
         if (!_client || !_options) {
             throw error('ERR_MONGODB_INIT', 'Mongodb is not init.')
         }
-        if (!queryConditionsFunction) { return; }
+        if (!query) { return; }
         const db = _client.db(_options.database);
-        return queryConditionsFunction(db);
+        return query(db);
     }
 
     /**
@@ -68,6 +67,7 @@ export class Mongo {
      */
     public async close(force?: boolean): Promise<void> {
         if (!this._client) { return; }
+        if (!this.isConnected) { return; }
         return this._client.close(force);
     }
 
