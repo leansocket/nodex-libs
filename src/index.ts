@@ -11,6 +11,7 @@ export * as http from './http';
 export * as body from './body';
 export * as smtp from './smtp';
 export * as mysql from './mysql';
+export * as mongo from './mongo';
 
 export * as crypto from './crypto';
 export * as authes from './authes';
