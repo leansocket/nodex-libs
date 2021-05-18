@@ -127,7 +127,7 @@ export const webapp = function (args: WebAppArgs): WebApp {
     const app = new WebApp();
 
     app.on('error', (err, ctx) => {
-        console.error(`http: error ${err.message}`);
+        console.error(`http error: `, err);
         if (ctx) {
             // nothing needed to do
         }
