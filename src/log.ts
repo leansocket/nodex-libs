@@ -3,6 +3,8 @@ import chalk from 'chalk';
 import { post } from './http/client';
 import { sign } from './http/basic';
 
+const cache = Symbol('cache');
+
 /**
  * 日志模块回调函数
  * @param {string} scope 日志的前缀标签
@@ -14,6 +16,7 @@ export type LogHandlerInfo = (scope: string, message: string) => void;
  * 日志服务器配置参数
  */
 export interface LogServerInfo {
+
 	/**
 	 * 日志服务器链接
 	 */
@@ -27,7 +30,12 @@ export interface LogServerInfo {
 	/**
 	 * 密钥
 	 */
-	secret: string
+	secret: string,
+
+	/**
+	 * 日志上报时间间隔
+	 */
+	interval?: number,
 }
 
 /**
@@ -55,7 +63,7 @@ export interface LogOptions {
  */
 interface LogInfo {
 	time: string,
-	level: string,
+	tag: string,
 	content: string
 }
 
@@ -90,14 +98,14 @@ export const init = function (options: string | LogOptions): void {
 		return `${Y}-${M}-${D} ${h}:${m}:${s}`;
 	}
 
-	const sendLog = async function (logInfo: LogInfo) {
+	const sendLogs = async function (logs: LogInfo[]) {
 
 		const { appid, secret, url } = server;
 
 		const data = {
-			...logInfo,
+			logs,
 			scope,
-			appid,
+			appid
 		}
 		data['$_appid'] = appid;
 		data['$_sign'] = sign(data, secret);
@@ -106,46 +114,60 @@ export const init = function (options: string | LogOptions): void {
 
 	const configs = {
 		log: {
-			level: 'LOG',
+			tag: 'LOG',
 			style: chalk.white
 		},
 		info: {
-			level: 'INFO',
+			tag: 'INFO',
 			style: chalk.green
 		},
 		notice: {
-			level: 'NOTICE',
+			tag: 'NOTICE',
 			style: chalk.blue
 		},
 		warn: {
-			level: 'WARN',
+			tag: 'WARN',
 			style: chalk.yellow.bold
 		},
 		error: {
-			level: 'ERROR',
+			tag: 'ERROR',
 			style: chalk.red.bold
 		}
 	};
 
 	let log = console.log;
 
+	console[cache] = [];
+
 	for (let x in configs) {
 		let cfg = configs[x];
 		const time = getTime();
-		const level = cfg.level
+		const tag = cfg.tag
 		console[x] = function () {
-			let content = `[${scope}] ${time}|${level}| ${util.format.apply(this, arguments as any)}`
+			let content = `[${scope}] ${time}|${tag}| ${util.format.apply(this, arguments as any)}`
 			log(cfg.style(content));
 			if (handler) {
 				handler(scope, content);
 			}
-			if (server) {
-				sendLog({
-					time,
-					level,
-					content: util.format.apply(this, arguments as any)
-				})
+			if (!server) {
+				return;
+			}
+			console[cache].push({
+				time,
+				tag,
+				content: util.format.apply(this, arguments as any)
+			});
+			if (console[cache].length > 256) {
+				sendLogs(console[cache]);
+				console[cache] = [];
 			}
 		}
 	}
+
+	setInterval(() => {
+		if (console[cache].length) {
+			sendLogs(console[cache]);
+			console[cache] = [];
+		}
+	}, server.interval || 6000);
 };
