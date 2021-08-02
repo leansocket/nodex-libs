@@ -135,7 +135,7 @@ export const init = function (options: string | LogOptions): void {
 		}
 	};
 
-	let log = console.log;
+	const console_log = console.log;
 
 	console[cache] = [];
 
@@ -145,21 +145,20 @@ export const init = function (options: string | LogOptions): void {
 		const tag = cfg.tag
 		console[x] = function () {
 			let content = `[${scope}] ${time}|${tag}| ${util.format.apply(this, arguments as any)}`
-			log(cfg.style(content));
+			console_log(cfg.style(content));
 			if (handler) {
 				handler(scope, content);
 			}
-			if (!server) {
-				return;
-			}
-			console[cache].push({
-				time,
-				tag,
-				content: util.format.apply(this, arguments as any)
-			});
-			if (console[cache].length > 256) {
-				sendLogs(console[cache]);
-				console[cache] = [];
+			if (server) {
+				console[cache].push({
+					time,
+					tag,
+					content: util.format.apply(this, arguments as any)
+				});
+				if (console[cache].length > 256) {
+					sendLogs(console[cache]);
+					console[cache] = [];
+				}
 			}
 		}
 	}
