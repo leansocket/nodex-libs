@@ -162,7 +162,7 @@ export const webapp = function (args: WebAppArgs): WebApp {
         }
     }
 
-    if (!args.https_cert && args.https_key) {
+    if (args.https_cert && args.https_key) {
         app.listenSafely = function () {
             if (args.https_hsts) {
                 app.use((ctx, next) => {
