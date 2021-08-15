@@ -163,10 +163,12 @@ export const init = function (options: string | LogOptions): void {
 		}
 	}
 
-	setInterval(() => {
-		if (console[cache].length) {
-			sendLogs(console[cache]);
-			console[cache] = [];
-		}
-	}, server.interval || 6000);
+	if (server) {
+		setInterval(() => {
+			if (console[cache].length) {
+				sendLogs(console[cache]);
+				console[cache] = [];
+			}
+		}, server.interval || 6000);
+	}
 };
