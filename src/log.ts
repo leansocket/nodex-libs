@@ -2,7 +2,9 @@ import util from 'util';
 import chalk from 'chalk';
 import { post } from './http/client';
 import { sign } from './http/basic';
+import * as flakes from "./flakes";
 
+const flake = flakes.create();
 const cache = Symbol('cache');
 
 /**
@@ -72,7 +74,6 @@ interface LogInfo {
  * @param {string} scope 日志的前缀标签
 */
 export const init = function (options: string | LogOptions): void {
-
 	let scope, server, handler;
 
 	if (typeof options === 'string') {
@@ -96,9 +97,31 @@ export const init = function (options: string | LogOptions): void {
 		let m = pad2(t.getMinutes());
 		let s = pad2(t.getSeconds());
 		return `${Y}-${M}-${D} ${h}:${m}:${s}`;
-	}
+	};
+
+	const sendSession = async function(session: object) {
+		if(!session) {
+			return;
+		}
+
+		session['id'] = flake.get();
+
+		const { appid, secret, url } = server;
+
+		const data = {
+			session,
+			scope,
+			appid
+		}
+		data['$_appid'] = appid;
+		data['$_sign'] = sign(data, secret);
+		return post(url, data);
+	};
 
 	const sendLogs = async function (logs: LogInfo[]) {
+		if(!logs || logs.length <= 0) {
+			return;
+		}
 
 		const { appid, secret, url } = server;
 
@@ -110,7 +133,7 @@ export const init = function (options: string | LogOptions): void {
 		data['$_appid'] = appid;
 		data['$_sign'] = sign(data, secret);
 		return post(url, data);
-	}
+	};
 
 	const configs = {
 		log: {
@@ -139,36 +162,56 @@ export const init = function (options: string | LogOptions): void {
 
 	console[cache] = [];
 
-	for (let x in configs) {
-		let cfg = configs[x];
-		const time = getTime();
-		const tag = cfg.tag
-		console[x] = function () {
-			let content = `[${scope}] ${time}|${tag}| ${util.format.apply(this, arguments as any)}`
-			console_log(cfg.style(content));
-			if (handler) {
-				handler(scope, content);
-			}
-			if (server) {
-				console[cache].push({
-					time,
-					tag,
-					content: util.format.apply(this, arguments as any)
-				});
-				if (console[cache].length > 256) {
-					sendLogs(console[cache]);
-					console[cache] = [];
+	if (server) {
+		console['session'] = async (session: object) => {
+			await sendSession(session);
+
+			for (let x in configs) {
+				let cfg = configs[x];
+				const time = getTime();
+				const tag = cfg.tag
+				console[x] = async function () {
+					let content = `[${scope}] ${time}|${tag}| ${util.format.apply(this, arguments as any)}`
+					console_log(cfg.style(content));
+					
+					if (handler) {
+						handler(scope, content);
+					}
+
+					console[cache].push({
+						time,
+						tag,
+						content: util.format.apply(this, arguments as any)
+					});
+
+					if (console[cache].length > 256) {
+						await sendLogs(console[cache]);
+						console[cache] = [];
+					}
 				}
 			}
-		}
-	}
+		};
 
-	if (server) {
-		setInterval(() => {
+		setInterval(async () => {
 			if (console[cache].length) {
-				sendLogs(console[cache]);
+				await sendLogs(console[cache]);
 				console[cache] = [];
 			}
 		}, server.interval || 6000);
+	}
+	else {
+		for (let x in configs) {
+			let cfg = configs[x];
+			const time = getTime();
+			const tag = cfg.tag
+			console[x] = async function () {
+				let content = `[${scope}] ${time}|${tag}| ${util.format.apply(this, arguments as any)}`
+				console_log(cfg.style(content));
+				
+				if (handler) {
+					handler(scope, content);
+				}
+			}
+		}
 	}
 };

@@ -9,6 +9,7 @@ import koaRouter from 'koa-router';
 import koaCors from 'koa2-cors';
 import koaStaticRouter from 'koa-static-router';
 import koaBody from '../body';
+import uaParser from 'ua-parser-js';
 
 import { error } from '../common';
 import * as cop from '../cop';
@@ -140,7 +141,29 @@ export const webapp = function (args: WebAppArgs): WebApp {
     if (args.log) {
         app.use(async (ctx, next) => {
             let req = ctx.request;
-            console.log(`http: ${req.ip} ${req.protocol.toUpperCase()} ${req.method} ${req.url}`);
+            let ua = uaParser(ctx.headers['user-agent']);
+
+            let session = {
+                time: Date.now(),
+                ip: req.ip,
+                protocol: req.protocol.toUpperCase(),
+                method: req.method,
+                url: req.url,
+                dev: ua.device,
+                cpu: ua.cpu,
+                os: ua.os,
+                client: ua.browser ? {
+                    browser: ua.browser,
+                    engine: ua.engine,
+                } : null,
+            };
+
+            if(typeof(console['session']) === 'function') {
+                console['session'](session);
+            }
+
+            console.log(`http: ${session.ip} ${session.protocol} ${session.method} ${session.url}`);
+            
             return next();
         });
     }
