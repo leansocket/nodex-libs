@@ -128,22 +128,10 @@ export const webapp = function (args: WebAppArgs): WebApp {
     const app = new WebApp();
 
     app.on('error', (err, ctx) => {
-        console.error(`http error: `, err);
         if (ctx) {
-            // nothing needed to do
-        }
-    });
-
-    if (args.proxy) {
-        app.proxy = true;
-    }
-
-    if (args.log) {
-        app.use(async (ctx, next) => {
-            let req = ctx.request;
-            let ua = uaParser(ctx.headers['user-agent']);
-
-            let session = {
+            const req = ctx.request;
+            const ua = uaParser(ctx.headers['user-agent']);
+            const meta = {
                 time: Date.now(),
                 ip: req.ip,
                 protocol: req.protocol.toUpperCase(),
@@ -157,13 +145,20 @@ export const webapp = function (args: WebAppArgs): WebApp {
                     engine: ua.engine,
                 } : null,
             };
+            console['meta'] = meta;
+        }
+        console.error(err);
+        console['meta'] = null;
+    });
 
-            if(typeof(console['session']) === 'function') {
-                console['session'](session);
-            }
+    if (args.proxy) {
+        app.proxy = true;
+    }
 
-            console.log(`http: ${session.ip} ${session.protocol} ${session.method} ${session.url}`);
-            
+    if (args.log) {
+        app.use(async (ctx, next) => {
+            let req = ctx.request;
+            console.log(`http: ${req.ip} ${req.protocol.toUpperCase()} ${req.method} ${req.url}`);        
             return next();
         });
     }
