@@ -137,7 +137,7 @@ export const webapp = function (args: WebAppArgs): WebApp {
                 protocol: req.protocol.toUpperCase(),
                 method: req.method,
                 url: req.url,
-                dev: ua.device,
+                device: ua.device,
                 cpu: ua.cpu,
                 os: ua.os,
                 client: ua.browser ? {
@@ -224,7 +224,7 @@ export const webapp = function (args: WebAppArgs): WebApp {
             }
             catch (err) {
                 ctx.body = cop.make(err, null);
-                ctx.app.emit('error', err);
+                ctx.app.emit('error', err, ctx);
             }
         });
 
