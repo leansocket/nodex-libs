@@ -1,6 +1,6 @@
 {
   "name": "nodex-libs",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "description": "A nodejs library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -30,13 +30,15 @@
     "multer": "^1.4.2",
     "mysql": "^2.18.1",
     "nodemailer": "^6.4.11",
-    "ua-parser-js": "^0.7.28"
+    "ua-parser-js": "^0.7.28",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
     "@types/koa": "^2.11.4",
     "@types/mongodb": "^3.6.1",
     "@types/node": "^14.6.4",
+    "@types/ws": "^8.5.5",
     "jest": "^26.4.2",
     "rimraf": "^3.0.2",
     "supertest": "^4.0.2",

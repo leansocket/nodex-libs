@@ -180,36 +180,33 @@ export const webapp = function (args: WebAppArgs): WebApp {
         }
     }
 
-    if (args.https_cert && args.https_key) {
-        app.listenSafely = function () {
-            if (args.https_hsts) {
-                app.use((ctx, next) => {
-                    let res = ctx.response;
-                    res.set("Strict-Transport-Security", "max-age=31536000");
-                    return next();
-                });
-            }
-
-            let cert = fs.readFileSync(util.absolutePath(args.https_cert));
-            let key = fs.readFileSync(util.absolutePath(args.https_key));
-            let options = { cert: cert, key: key };
-
-            if (args.http2 === true) {
-                let server = http2.createSecureServer(options, app.callback());
-                server.listen.apply(server, arguments as any);
-            }
-            else {
-                let server = https.createServer(options, app.callback());
-                server.listen.apply(server, arguments as any);
-            }
-        };
-    }
-    else {
-        app.listenSafely = function () {
+    app.listenSafely = function () {
+        if (!args.https_cert || !args.https_key) {
             throw error('ERR_NOT_IMPLEMENTS',
                 `the method WebApp.listenSafely is not implements, please configure it.`);
         }
-    }
+
+        if (args.https_hsts) {
+            app.use((ctx, next) => {
+                let res = ctx.response;
+                res.set("Strict-Transport-Security", "max-age=31536000");
+                return next();
+            });
+        }
+
+        let cert = fs.readFileSync(util.absolutePath(args.https_cert));
+        let key = fs.readFileSync(util.absolutePath(args.https_key));
+        let options = { cert: cert, key: key };
+
+        if (args.http2 === true) {
+            let server = http2.createSecureServer(options, app.callback());
+            server.listen.apply(server, arguments as any);
+        }
+        else {
+            let server = https.createServer(options, app.callback());
+            server.listen.apply(server, arguments as any);
+        }
+    };
 
     app.static = function (...args) {
         app.use(koaStaticRouter(args))
