@@ -77,14 +77,14 @@ export class Token {
      * @param {string} token 待验证的token字符串
      * @returns {TokenSession} token的sessio信息
     */
-    public check(token: string): TokenSession {
+    public check(token: string): TokenSession|undefined {
         let pack: any = null;
         try {
             let str = crypto.decode_hex64(token);
             str = crypto.decode_aes_256_cbc(this.secret, str);
             pack = JSON.parse(str);
         }
-        catch (e) {
+        catch (e: any) {
             console.log(e.message);
         }
         if (!pack || !Array.isArray(pack) || pack.length !== 3 ||
@@ -200,7 +200,7 @@ export class Code {
      * 对应的邮箱地址，如果验证码发送类型为sms，这里就是对应的手机号码。
      * @returns {CodeSession} 如果通过检查，返回此发送目标对应验证码的session信息。
     */
-    public check(type: string, to: string): CodeSession {
+    public check(type: string, to: string): CodeSession|undefined {
         let key = `${type}:${to}`;
         let s = this.sessions[key];
         if (s) {
@@ -219,7 +219,7 @@ export class Code {
         let list: string[] = [];
         for (let key in this.sessions) {
             let s = this.sessions[key];
-            if (now > s.time + this.timeout * 1000) {
+            if (s && now > s.time + this.timeout * 1000) {
                 list.push(key);
             }
         }

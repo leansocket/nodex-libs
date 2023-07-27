@@ -8,7 +8,7 @@ import path from 'path';
  * @param {number} time 需要延迟的时间，单位为秒。
 */
 export const delay = async function (time: number): Promise<void> {
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
         let timer = setTimeout(() => {
             clearTimeout(timer);
             resolve();

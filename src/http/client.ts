@@ -16,16 +16,16 @@ import {
 /**
  * 将url解析成通用的请求选项参数。
 */
-export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOptions): HttpRequestOptions {
+export const getRequestOptions = function (optionsOrUrl: string | HttpRequestOptions): HttpRequestOptions|null {
     if(typeof(optionsOrUrl) === 'object') {
         return optionsOrUrl;
     }
     else if (typeof (optionsOrUrl) === 'string' && optionsOrUrl.length > 0) {
         let urlinfo = liburl.parse(optionsOrUrl);
         return {
-            hostname: urlinfo.hostname,
-            port: urlinfo.port,
-            path: urlinfo.path,
+            hostname: urlinfo.hostname || undefined,
+            port: urlinfo.port || undefined,
+            path: urlinfo.path || undefined,
             safe: isHttps(optionsOrUrl),
         };
     }
@@ -55,7 +55,7 @@ export const request = async function (options: HttpRequestOptions, data: any): 
     }
 
     if (options.method === 'GET') {
-        options.path = combineUrlAndParams(options.path, data);
+        options.path = combineUrlAndParams(options.path || '', data);
     }
     else if (options.method === 'POST') {
         options.headers['Content-Type'] = options.headers['Content-Type'] || 'application/json';

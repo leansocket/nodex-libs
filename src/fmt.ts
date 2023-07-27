@@ -161,7 +161,7 @@ export const rules = {
  * @param {T} defaultValue 默认值
  * @returns {boolean} 字段是否存在
 */
-export const optional = function <T>(field: T, format: string | RegExp, minlen: number, maxlen: number, defaultValue: T): boolean {
+export const optional = function <T>(field: T, format: string | RegExp, minlen?: number, maxlen?: number, defaultValue?: T): boolean {
     if (field === undefined || field === null) {
         if (defaultValue !== undefined) {
             field = defaultValue;
