@@ -111,7 +111,7 @@ export class Connection {
      * 开启事务
     */
     public async transaction(): Promise<void> {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.conn.beginTransaction((err) => {
                 if (err) {
                     return reject(err);
@@ -125,7 +125,7 @@ export class Connection {
      * 提交事务
     */
     public async commit(): Promise<void> {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.conn.commit((err) => {
                 if (err) {
                     return reject(err);
@@ -139,7 +139,7 @@ export class Connection {
      * 回滚事务
     */
     public async rollback(): Promise<void> {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             this.conn.rollback((err) => {
                 if (err) {
                     return reject(err);

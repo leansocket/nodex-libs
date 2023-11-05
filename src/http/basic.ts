@@ -103,8 +103,10 @@ export function combineUrlAndParams(url: string, data: query.ParsedUrlQueryInput
  * @returns {string} 签名指纹
  */
 export function sign(data: object, secret: string): string {
-    const str = Object.keys(data).sort().map(
-        key => `${key}=${data[key]}`
-    ).join('&');
+    const str = Object.keys(data)
+        .filter(key=>data[key] !== undefined && data[key] !== "")
+        .sort()
+        .map(key => `${key}=${JSON.stringify(data[key])}`)
+        .join('&');
     return md5(str + secret);
 }

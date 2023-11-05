@@ -397,8 +397,7 @@ function onconnect(proxyServer, proxyOptions, req, socket, head) {
             // nullify the ServerResponse object, so that it can be cleaned
             // up before this socket proxying is completed
             res.detachSocket(socket);
-            res = null;
-
+            
             // pipe streams
             socket.pipe(target);
             target.pipe(socket);

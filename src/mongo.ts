@@ -54,8 +54,7 @@ export class Mongo {
         if (!this._client.isConnected()) {
             try {
                 await this._client.connect();
-            } catch (err) {
-                console.error(err);
+            } catch (err: any) {
                 throw error('ERR_MONGODB_CONNECTION', err.message);
             }
         }

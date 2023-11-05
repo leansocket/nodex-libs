@@ -136,6 +136,7 @@ export const init = function (options: string | LogOptions): void {
 	};
 
 	const console_log = console.log;
+	console['raw'] = console_log;
 
 	console[cache] = [];
 
