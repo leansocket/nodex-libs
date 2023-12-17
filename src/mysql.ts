@@ -185,21 +185,13 @@ export class MySql {
      * @param {boolean} transaction 开启事务
      * @returns {Connection} 数据库连接对象
     */
-    public async connect(transaction: boolean = false): Promise<Connection> {
+    public async connect(): Promise<Connection> {
         return await new Promise((resolve, reject) => {
             this.pool.getConnection((err, conn) => {
                 if (err) {
                     return reject(err);
                 }
-                if (!transaction) {
-                    return resolve(new Connection(conn));
-                }
-                conn.beginTransaction((err) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    return resolve(new Connection(conn));
-                });
+                return resolve(new Connection(conn));
             });
         });
     }
@@ -208,7 +200,9 @@ export class MySql {
      * 连接数据库并开启事务。
     */
     public async transaction(): Promise<Connection> {
-        return await this.connect(true);
+        const conn = await this.connect();
+        await conn.transaction();
+        return conn;
     }
 
     /**
@@ -253,15 +247,15 @@ export const init = async function (options: MySqlOptions) {
   * @param {boolean} transaction 开启事务
   * @returns {Connection} 数据库连接对象
  */
-export const connect = async function (transaction: boolean = false): Promise<Connection> {
-    return await db.connect(transaction);
+export const connect = async function (): Promise<Connection> {
+    return await db.connect();
 }
 
 /**
  * 连接数据库并开启事务。
 */
 export const transaction = async function (): Promise<Connection> {
-    return await db.connect(true);
+    return await db.transaction();
 }
 
 /**
