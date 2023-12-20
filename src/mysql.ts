@@ -233,13 +233,13 @@ export class MySql {
     }
 }
 
-const db = new MySql();
+export const instance = new MySql();
 
 /**
  * 初始化全局MySql对象
 */
 export const init = async function (options: MySqlOptions) {
-    return await db.init(options);
+    return await instance.init(options);
 }
 
 /**
@@ -248,14 +248,14 @@ export const init = async function (options: MySqlOptions) {
   * @returns {Connection} 数据库连接对象
  */
 export const connect = async function (): Promise<Connection> {
-    return await db.connect();
+    return await instance.connect();
 }
 
 /**
  * 连接数据库并开启事务。
 */
 export const transaction = async function (): Promise<Connection> {
-    return await db.transaction();
+    return await instance.transaction();
 }
 
 /**
@@ -265,7 +265,7 @@ export const transaction = async function (): Promise<Connection> {
  * @returns {any} 查询结果集
 */
 export const query = async function (sql: string, logsql: boolean = true): Promise<any> {
-    return await db.query(sql, logsql);
+    return await instance.query(sql, logsql);
 }
 
 /**
@@ -276,5 +276,5 @@ export const query = async function (sql: string, logsql: boolean = true): Promi
  * @returns {any} 查询结果集
 */
 export const page = async function (sql: string, page: number, size: number): Promise<any> {
-    return await db.page(sql, page, size);
+    return await instance.page(sql, page, size);
 }
