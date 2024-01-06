@@ -228,11 +228,13 @@ export const webapp = function (args: WebAppArgs): WebApp {
         if (args.ping) {
             router.post('/_ping', async function (ctx, next) {
                 ctx.response.body = cop.make(true);
+                await next();
             });
         }
 
         func(router);
-        app.use(router.routes()).use(router.allowedMethods());
+
+        app.use(router.routes());
     };
 
     app.start = function () {
@@ -339,7 +341,7 @@ export const handler = function (func: (args: object) => any): WebMiddleWare {
     if (typeof (func) !== 'function') {
         throw error(`ERR_INVALID_ARGS`, `the type of 'func' is not a 'async function'.`);
     }
-    return async function (ctx) {
+    return async function (ctx, next) {
         let args = {
             ... (ctx.params || {}),
             ... (ctx.request.query || {}),
@@ -347,5 +349,6 @@ export const handler = function (func: (args: object) => any): WebMiddleWare {
         }
         let ret = await func(args);
         send(ctx, ret);
+        await next();
     };
 };
